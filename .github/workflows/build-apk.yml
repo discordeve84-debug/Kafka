@@ -39,41 +39,39 @@ jobs:
         shell: bash
         run: |
           SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
-          if [ ! -w "$SDK_DIR" ]; then
-            sudo chown -R "$(whoami)":"$(id -gn)" "$SDK_DIR" || true
+          if [ ! -e "$SDK_DIR" ]; then
+            mkdir -p "$SDK_DIR" || sudo mkdir -p "$SDK_DIR" || true
           fi
+          if [ ! -w "$SDK_DIR" ]; then
+            sudo chown -R "$(id -u)":"$(id -g)" "$SDK_DIR" || true
+          fi
+          if [ ! -w "$SDK_DIR" ]; then
+            SDK_DIR="$HOME/android-sdk"
+            mkdir -p "$SDK_DIR"
+          fi
+          mkdir -p "$SDK_DIR/licenses"
           echo "ANDROID_HOME=$SDK_DIR" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_DIR" >> "$GITHUB_ENV"
 
-          SDKMANAGER=""
-          for candidate in \
-            "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" \
-            "$SDK_DIR/cmdline-tools/bin/sdkmanager" \
-            "$(command -v sdkmanager 2>/dev/null || true)"; do
-            if [ -n "$candidate" ] && [ -x "$candidate" ]; then
-              SDKMANAGER="$candidate"
-              break
-            fi
-          done
+          # Pre-populate standard Android SDK license approvals so Gradle can auto-download any missing SDK 36 components
+          printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n8933bad161af4178b1185d1a37fbf41ea5269c55\n" > "$SDK_DIR/licenses/android-sdk-license"
+          printf "\n84831b9409646a918e30573bab4c9c91346d8abd\n" > "$SDK_DIR/licenses/android-sdk-preview-license"
+          printf "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a\n" > "$SDK_DIR/licenses/google-gdk-license"
 
-          if [ -z "$SDKMANAGER" ]; then
-            echo "sdkmanager not found, downloading Android commandline-tools..."
-            mkdir -p "$SDK_DIR/cmdline-tools"
-            curl -sSL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/cmdline-tools.zip
-            unzip -q /tmp/cmdline-tools.zip -d "$SDK_DIR/cmdline-tools"
-            mv "$SDK_DIR/cmdline-tools/cmdline-tools" "$SDK_DIR/cmdline-tools/latest"
-            rm -f /tmp/cmdline-tools.zip
-            SDKMANAGER="$SDK_DIR/cmdline-tools/latest/bin/sdkmanager"
+          SDKMANAGER="$(command -v sdkmanager 2>/dev/null || find "$SDK_DIR" -maxdepth 4 -name sdkmanager -type f 2>/dev/null | head -n 1 || true)"
+          if [ -n "$SDKMANAGER" ]; then
+            echo "Using sdkmanager: $SDKMANAGER"
+            (yes || true) | "$SDKMANAGER" --sdk_root="$SDK_DIR" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" --sdk_root="$SDK_DIR" "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
+            "$SDKMANAGER" --sdk_root="$SDK_DIR" "platforms;android-36.1" >/dev/null 2>&1 || true
+          else
+            echo "sdkmanager not found; Gradle will auto-download required SDK packages using ANDROID_HOME=$SDK_DIR"
           fi
-
-          mkdir -p "$SDK_DIR/licenses"
-          yes | "$SDKMANAGER" --sdk_root="$SDK_DIR" --licenses >/dev/null 2>&1 || true
-          "$SDKMANAGER" --sdk_root="$SDK_DIR" "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
-          "$SDKMANAGER" --sdk_root="$SDK_DIR" "platforms;android-36.1" >/dev/null 2>&1 || true
 
           if [ -d "$SDK_DIR/platforms/android-36.0" ] && [ ! -e "$SDK_DIR/platforms/android-36" ]; then
-            ln -s "$SDK_DIR/platforms/android-36.0" "$SDK_DIR/platforms/android-36"
+            ln -s "$SDK_DIR/platforms/android-36.0" "$SDK_DIR/platforms/android-36" || true
           fi
+          ls -la "$SDK_DIR/platforms" 2>/dev/null || true
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
