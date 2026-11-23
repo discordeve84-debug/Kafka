@@ -1,5 +1,4 @@
 import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
-import java.util.zip.ZipFile
 
 plugins {
   alias(libs.plugins.android.application)
@@ -138,52 +137,6 @@ dependencies {
   debugImplementation(libs.androidx.compose.ui.tooling)
   // "ksp"(libs.androidx.room.compiler)
   "ksp"(libs.moshi.kotlin.codegen)
-}
-
-tasks.register<Copy>("exportApkToProject") {
-  dependsOn("assembleDebug")
-  val outDir = rootProject.layout.projectDirectory.dir("apk")
-  from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
-  into(outDir)
-  rename { "kafka-debug.apk" }
-  doLast {
-    val apkFile = outDir.file("kafka-debug.apk").asFile
-    println("APK generated: ${apkFile.absolutePath} (${apkFile.length()} bytes)")
-  }
-}
-
-tasks.register("stageDownloadableApk") {
-  dependsOn("assembleDebug")
-  val builtApkProvider = layout.buildDirectory.file("outputs/apk/debug/app-debug.apk")
-  val buildOutputsApk = rootProject.layout.projectDirectory.file(".build-outputs/app-debug.apk").asFile
-  val downloadApk = rootProject.layout.projectDirectory.file("APK_DOWNLOAD/app-debug.apk").asFile
-
-  doLast {
-    val sourceApk = builtApkProvider.get().asFile
-    require(sourceApk.exists() && sourceApk.length() > 1_048_576L) {
-      "Built APK is missing or too small: ${sourceApk.absolutePath} (${sourceApk.length()} bytes)"
-    }
-
-    listOf(buildOutputsApk, downloadApk).forEach { target ->
-      target.parentFile.mkdirs()
-      sourceApk.copyTo(target, overwrite = true)
-      require(target.exists() && target.length() == sourceApk.length() && target.length() > 1_048_576L) {
-        "Copied APK invalid at ${target.absolutePath}"
-      }
-      ZipFile(target).use { zip ->
-        val hasManifest = zip.getEntry("AndroidManifest.xml") != null
-        val hasResources = zip.getEntry("resources.arsc") != null
-        val hasDex = zip.getEntry("classes.dex") != null
-        val entryCount = zip.size()
-        require(hasManifest && hasResources && hasDex) {
-          "Invalid APK structure in ${target.absolutePath}: manifest=$hasManifest, resources=$hasResources, dex=$hasDex"
-        }
-        println(
-          "Verified APK: ${target.absolutePath} | size=${target.length()} bytes | entries=$entryCount | manifest=$hasManifest | dex=$hasDex | resources=$hasResources"
-        )
-      }
-    }
-  }
 }
 
 
