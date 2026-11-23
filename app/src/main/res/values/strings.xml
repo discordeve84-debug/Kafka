@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Kafka</string>
+    <string name="tagline_hermes">Hermes-Grade Autonomous Research &amp; Skill Agent</string>
+    <string name="sign_in_google">Masuk dengan Google</string>
+    <string name="sign_out">Keluar</string>
+    <string name="nav_home">Beranda</string>
+    <string name="nav_agent">Agent</string>
+    <string name="nav_research">Riset</string>
+    <string name="nav_skills">Skill Hub</string>
+    <string name="nav_studio">Dokumen</string>
+    <string name="cd_kafka_logo">Ikon anime agen AI Kafka</string>
+    <string name="cd_anime_mascot">Ilustrasi asisten anime Kafka</string>
+    <string name="cd_send_prompt">Kirim instruksi ke agen Kafka</string>
+    <string name="cd_new_session">Buat sesi baru</string>
+    <string name="cd_verify_content">Verifikasi klaim dan sumber</string>
+    <string name="cd_share_file">Bagikan atau buka dokumen</string>
+    <string name="cd_export_doc">Ekspor dokumen</string>
+    <string name="cd_voice_input">Rekam pertanyaan riset dengan mikrofon</string>
+    <string name="cd_stop_voice_input">Hentikan rekaman dan kirim ke Kafka</string>
+    <string name="cd_cancel_voice_input">Batalkan rekaman suara</string>
+    <string name="cd_close_preview">Tutup pratinjau dokumen</string>
+    <string name="preview_badge_readonly">PRATINJAU READ-ONLY</string>
+    <string name="mic_permission_denied">Izin mikrofon diperlukan untuk kueri suara langsung.</string>
+    <string name="cd_save_snapshot">Simpan snapshot riset ke Research Library</string>
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_library">Library</string>
+</resources>

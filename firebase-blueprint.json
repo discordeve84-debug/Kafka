@@ -1,0 +1,158 @@
+{
+  "entities": {
+    "AgentSession": {
+      "title": "AgentSession",
+      "description": "A Kafka autonomous research and document generation session owned by a user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID of the session owner." },
+        "title": { "type": "string", "description": "Human-readable session title." },
+        "mode": {
+          "type": "string",
+          "enum": ["AGENT", "WEB_SEARCH", "JOURNAL_RESEARCH", "FACT_VERIFY", "DOC_STUDIO"],
+          "description": "Primary execution mode for this session."
+        },
+        "activeSkillIds": { "type": "array", "description": "Up to 10 active skill identifiers." },
+        "lastSummary": { "type": "string", "description": "Latest agent summary snippet." },
+        "verifiedScore": { "type": "integer", "description": "Latest content verification confidence 0..100." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Server timestamp on last update." }
+      },
+      "required": ["userId", "title", "mode", "activeSkillIds", "lastSummary", "verifiedScore", "createdAt", "updatedAt"]
+    },
+    "AgentMessage": {
+      "title": "AgentMessage",
+      "description": "A message turn in a Kafka agent session including reasoning traces, citations, and verification metadata.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID." },
+        "role": { "type": "string", "enum": ["USER", "AGENT"] },
+        "content": { "type": "string", "description": "Markdown/prose message body." },
+        "thoughtSteps": { "type": "array", "description": "Hermes-style autonomous reasoning and tool call steps." },
+        "verificationStatus": { "type": "string", "enum": ["VERIFIED", "PARTIAL", "UNVERIFIED", "NONE"] },
+        "verificationScore": { "type": "integer", "description": "0..100 verification score." },
+        "verificationSummary": { "type": "string", "description": "Concise claim audit note." },
+        "citations": { "type": "array", "description": "Up to 15 structured source citation maps." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Server timestamp on creation." }
+      },
+      "required": ["userId", "role", "content", "thoughtSteps", "verificationStatus", "verificationScore", "verificationSummary", "citations", "createdAt"]
+    },
+    "AgentSkill": {
+      "title": "AgentSkill",
+      "description": "An executable Kafka AI agent skill (built-in, imported from GitHub, or generated from scratch by Kafka AI).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Owner UID." },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["DOCUMENT", "RESEARCH", "VERIFICATION", "GITHUB", "CUSTOM"] },
+        "sourceType": { "type": "string", "enum": ["BUILTIN", "GITHUB", "AI_CREATED"] },
+        "githubRepo": { "type": "string" },
+        "githubUrl": { "type": "string" },
+        "systemPrompt": { "type": "string" },
+        "outputFormat": { "type": "string", "enum": ["DOCX", "PDF", "PPTX", "MARKDOWN", "CSV", "JSON", "RESEARCH"] },
+        "enabled": { "type": "boolean" },
+        "usageCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "slug", "description", "category", "sourceType", "systemPrompt", "outputFormat", "enabled", "usageCount", "createdAt", "updatedAt"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated Kafka user profile storing display info and workspace preferences.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "bio": { "type": "string" },
+        "darkTheme": { "type": "boolean" },
+        "defaultFormat": { "type": "string", "enum": ["DOCX", "PDF", "PPTX", "MARKDOWN", "CSV"] },
+        "autoVerify": { "type": "boolean" },
+        "preferredLanguage": { "type": "string", "enum": ["Indonesia", "English"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "displayName", "email", "bio", "darkTheme", "defaultFormat", "autoVerify", "preferredLanguage", "createdAt", "updatedAt"]
+    },
+    "GeneratedArtifact": {
+      "title": "GeneratedArtifact",
+      "description": "Metadata for an exported document artifact (DOCX, PDF, PPTX, Markdown, CSV).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "title": { "type": "string" },
+        "format": { "type": "string", "enum": ["DOCX", "PDF", "PPTX", "MARKDOWN", "CSV"] },
+        "fileName": { "type": "string" },
+        "localPath": { "type": "string" },
+        "summary": { "type": "string" },
+        "wordCount": { "type": "integer" },
+        "verified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "sessionId", "title", "format", "fileName", "localPath", "summary", "wordCount", "verified", "createdAt", "updatedAt"]
+    },
+    "ResearchSnapshot": {
+      "title": "ResearchSnapshot",
+      "description": "A saved snapshot of the current chat state, active document preview, and search references in the user's Research Library.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "sourceSessionId": { "type": "string" },
+        "title": { "type": "string" },
+        "notes": { "type": "string" },
+        "mode": { "type": "string", "enum": ["AGENT", "WEB_SEARCH", "JOURNAL_RESEARCH", "FACT_VERIFY", "DOC_STUDIO"] },
+        "activeSkillIds": { "type": "array" },
+        "messageCount": { "type": "integer" },
+        "messagesArchive": { "type": "array" },
+        "citations": { "type": "array" },
+        "hasActivePreview": { "type": "boolean" },
+        "previewFormat": { "type": "string" },
+        "previewTitle": { "type": "string" },
+        "previewSubtitle": { "type": "string" },
+        "previewSummary": { "type": "string" },
+        "previewSections": { "type": "array" },
+        "previewReferences": { "type": "array" },
+        "verifiedScore": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "userId", "sourceSessionId", "title", "notes", "mode", "activeSkillIds",
+        "messageCount", "messagesArchive", "citations", "hasActivePreview",
+        "previewFormat", "previewTitle", "previewSubtitle", "previewSummary",
+        "previewSections", "previewReferences", "verifiedScore", "createdAt", "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private user profile and workspace preferences."
+    },
+    "/users/{userId}/sessions/{sessionId}": {
+      "schema": { "$ref": "#/entities/AgentSession" },
+      "description": "User-scoped Kafka AI research and workspace sessions."
+    },
+    "/users/{userId}/sessions/{sessionId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/AgentMessage" },
+      "description": "Messages and agent traces within a session."
+    },
+    "/users/{userId}/skills/{skillId}": {
+      "schema": { "$ref": "#/entities/AgentSkill" },
+      "description": "User-owned custom, GitHub-imported, and built-in agent skills."
+    },
+    "/users/{userId}/artifacts/{artifactId}": {
+      "schema": { "$ref": "#/entities/GeneratedArtifact" },
+      "description": "Metadata of generated Word, PDF, PPTX, Markdown, and CSV artifacts."
+    },
+    "/users/{userId}/researchLibrary/{snapshotId}": {
+      "schema": { "$ref": "#/entities/ResearchSnapshot" },
+      "description": "Saved chat snapshots with active document previews and search references."
+    }
+  }
+}

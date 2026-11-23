@@ -1,0 +1,8 @@
+{
+  "name": "Kafka",
+  "description": "Autonomous AI research and document agent with live web & academic journal search, source verification, GitHub skill discovery, custom skill creation, and DOCX/PDF/PPTX generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
