@@ -88,6 +88,8 @@ jobs:
           gradle-version: "9.3.1"
 
       - name: Prepare debug keystore & env
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
         shell: bash
         run: |
           if [ ! -f debug.keystore ]; then
@@ -105,8 +107,16 @@ jobs:
                 -dname "CN=Android Debug,O=Android,C=US"
             fi
           fi
+          if [ ! -f app/google-services.json ] && [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "$GOOGLE_SERVICES_JSON_BASE64" | tr -d '[:space:]' | base64 -d > app/google-services.json
+          fi
           touch .env
-          ls -lh debug.keystore .env app/google-services.json
+          ls -lh debug.keystore .env
+          if [ -f app/google-services.json ]; then
+            ls -lh app/google-services.json
+          else
+            echo "Note: app/google-services.json not found in repo; Gradle will continue via MissingGoogleServicesStrategy.WARN"
+          fi
 
       - name: Build Debug APK
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
