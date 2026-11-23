@@ -2,13 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
-      - master
   pull_request:
-    branches:
-      - main
-      - master
   workflow_dispatch:
     inputs:
       build_type:
@@ -39,24 +33,27 @@ jobs:
         shell: bash
         run: |
           SDK_DIR="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
-          if [ ! -e "$SDK_DIR" ]; then
-            mkdir -p "$SDK_DIR" || sudo mkdir -p "$SDK_DIR" || true
+          if [ ! -d "$SDK_DIR" ]; then
+            mkdir -p "$SDK_DIR" 2>/dev/null || sudo mkdir -p "$SDK_DIR" 2>/dev/null || true
           fi
-          if [ ! -w "$SDK_DIR" ]; then
-            sudo chown -R "$(id -u)":"$(id -g)" "$SDK_DIR" || true
+          if [ ! -w "$SDK_DIR" ] || { [ -e "$SDK_DIR/licenses" ] && [ ! -w "$SDK_DIR/licenses" ]; }; then
+            sudo chown -R "$(id -u)":"$(id -g)" "$SDK_DIR" 2>/dev/null || true
           fi
           if [ ! -w "$SDK_DIR" ]; then
             SDK_DIR="$HOME/android-sdk"
             mkdir -p "$SDK_DIR"
           fi
           mkdir -p "$SDK_DIR/licenses"
+          if [ ! -w "$SDK_DIR/licenses" ]; then
+            sudo chown -R "$(id -u)":"$(id -g)" "$SDK_DIR/licenses" 2>/dev/null || true
+          fi
+
           echo "ANDROID_HOME=$SDK_DIR" >> "$GITHUB_ENV"
           echo "ANDROID_SDK_ROOT=$SDK_DIR" >> "$GITHUB_ENV"
 
-          # Pre-populate standard Android SDK license approvals so Gradle can auto-download any missing SDK 36 components
-          printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n8933bad161af4178b1185d1a37fbf41ea5269c55\n" > "$SDK_DIR/licenses/android-sdk-license"
-          printf "\n84831b9409646a918e30573bab4c9c91346d8abd\n" > "$SDK_DIR/licenses/android-sdk-preview-license"
-          printf "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a\n" > "$SDK_DIR/licenses/google-gdk-license"
+          printf "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\nd56f5187479451eabf01fb78af6dfcb131a6481e\n8933bad161af4178b1185d1a37fbf41ea5269c55\n" > "$SDK_DIR/licenses/android-sdk-license" || true
+          printf "\n84831b9409646a918e30573bab4c9c91346d8abd\n" > "$SDK_DIR/licenses/android-sdk-preview-license" || true
+          printf "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a\n" > "$SDK_DIR/licenses/google-gdk-license" || true
 
           SDKMANAGER="$(command -v sdkmanager 2>/dev/null || find "$SDK_DIR" -maxdepth 4 -name sdkmanager -type f 2>/dev/null | head -n 1 || true)"
           if [ -n "$SDKMANAGER" ]; then
@@ -65,13 +62,13 @@ jobs:
             "$SDKMANAGER" --sdk_root="$SDK_DIR" "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
             "$SDKMANAGER" --sdk_root="$SDK_DIR" "platforms;android-36.1" >/dev/null 2>&1 || true
           else
-            echo "sdkmanager not found; Gradle will auto-download required SDK packages using ANDROID_HOME=$SDK_DIR"
+            echo "sdkmanager not found; Gradle will auto-download required SDK packages into $SDK_DIR"
           fi
 
           if [ -d "$SDK_DIR/platforms/android-36.0" ] && [ ! -e "$SDK_DIR/platforms/android-36" ]; then
-            ln -s "$SDK_DIR/platforms/android-36.0" "$SDK_DIR/platforms/android-36" || true
+            ln -s "$SDK_DIR/platforms/android-36.0" "$SDK_DIR/platforms/android-36" 2>/dev/null || true
           fi
-          ls -la "$SDK_DIR/platforms" 2>/dev/null || true
+          echo "Configured ANDROID_HOME=$SDK_DIR"
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
@@ -83,7 +80,7 @@ jobs:
         run: |
           if [ ! -f debug.keystore ]; then
             if [ -f debug.keystore.base64 ]; then
-              tr -d '\r\n' < debug.keystore.base64 | base64 -d > debug.keystore
+              tr -d '[:space:]' < debug.keystore.base64 | base64 -d > debug.keystore
             else
               keytool -genkeypair -v \
                 -keystore debug.keystore \
@@ -100,7 +97,7 @@ jobs:
 
       - name: Build Debug APK
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
-        run: gradle :app:assembleDebug --no-daemon
+        run: gradle :app:assembleDebug --no-daemon --stacktrace
 
       - name: Build Release APK (requires GitHub Secrets)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
@@ -114,8 +111,8 @@ jobs:
             echo "Missing RELEASE_KEYSTORE_BASE64, STORE_PASSWORD, or KEY_PASSWORD in GitHub repository secrets."
             exit 1
           fi
-          echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > my-upload-key.jks
-          KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks" gradle :app:assembleRelease --no-daemon
+          echo "$RELEASE_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > my-upload-key.jks
+          KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks" gradle :app:assembleRelease --no-daemon --stacktrace
 
       - name: Upload Debug APK Artifact
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
