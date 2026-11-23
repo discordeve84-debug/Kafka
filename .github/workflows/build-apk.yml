@@ -36,7 +36,7 @@ jobs:
           if [ ! -d "$SDK_DIR" ]; then
             mkdir -p "$SDK_DIR" 2>/dev/null || sudo mkdir -p "$SDK_DIR" 2>/dev/null || true
           fi
-          if [ ! -w "$SDK_DIR" ] || { [ -e "$SDK_DIR/licenses" ] && [ ! -w "$SDK_DIR/licenses" ]; }; then
+          if [ ! -w "$SDK_DIR" ] || { [ -e "$SDK_DIR/licenses" ] && [ ! -w "$SDK_DIR/licenses" ]; } || { [ -e "$SDK_DIR/platforms" ] && [ ! -w "$SDK_DIR/platforms" ]; }; then
             sudo chown -R "$(id -u)":"$(id -g)" "$SDK_DIR" 2>/dev/null || true
           fi
           if [ ! -w "$SDK_DIR" ]; then
@@ -55,12 +55,23 @@ jobs:
           printf "\n84831b9409646a918e30573bab4c9c91346d8abd\n" > "$SDK_DIR/licenses/android-sdk-preview-license" || true
           printf "\n33b6a2b64607f11b759f320ef9dff4ae5c47d97a\n" > "$SDK_DIR/licenses/google-gdk-license" || true
 
-          SDKMANAGER="$(command -v sdkmanager 2>/dev/null || find "$SDK_DIR" -maxdepth 4 -name sdkmanager -type f 2>/dev/null | head -n 1 || true)"
+          SDKMANAGER=""
+          for candidate in \
+            "$SDK_DIR/cmdline-tools/latest/bin/sdkmanager" \
+            /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \
+            $(find "$SDK_DIR" /usr/local/lib/android/sdk -path "*/cmdline-tools/*/bin/sdkmanager" -type f 2>/dev/null || true) \
+            "$(command -v sdkmanager 2>/dev/null || true)"; do
+            if [ -n "$candidate" ] && [ -x "$candidate" ]; then
+              SDKMANAGER="$candidate"
+              break
+            fi
+          done
+
           if [ -n "$SDKMANAGER" ]; then
             echo "Using sdkmanager: $SDKMANAGER"
-            (yes || true) | "$SDKMANAGER" --sdk_root="$SDK_DIR" --licenses >/dev/null 2>&1 || true
+            (yes || true) | "$SDKMANAGER" --sdk_root="$SDK_DIR" --licenses || true
             "$SDKMANAGER" --sdk_root="$SDK_DIR" "platform-tools" "platforms;android-36" "build-tools;36.0.0" || true
-            "$SDKMANAGER" --sdk_root="$SDK_DIR" "platforms;android-36.1" >/dev/null 2>&1 || true
+            "$SDKMANAGER" --sdk_root="$SDK_DIR" "platforms;android-36.1" || true
           else
             echo "sdkmanager not found; Gradle will auto-download required SDK packages into $SDK_DIR"
           fi
@@ -69,6 +80,7 @@ jobs:
             ln -s "$SDK_DIR/platforms/android-36.0" "$SDK_DIR/platforms/android-36" 2>/dev/null || true
           fi
           echo "Configured ANDROID_HOME=$SDK_DIR"
+          ls -la "$SDK_DIR/platforms" 2>/dev/null || true
 
       - name: Set up Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
@@ -94,10 +106,13 @@ jobs:
             fi
           fi
           touch .env
+          ls -lh debug.keystore .env app/google-services.json
 
       - name: Build Debug APK
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: |
+          gradle --version
+          gradle :app:assembleDebug --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
 
       - name: Build Release APK (requires GitHub Secrets)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
@@ -112,7 +127,7 @@ jobs:
             exit 1
           fi
           echo "$RELEASE_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > my-upload-key.jks
-          KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks" gradle :app:assembleRelease --no-daemon --stacktrace
+          KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks" gradle :app:assembleRelease --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
 
       - name: Upload Debug APK Artifact
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
