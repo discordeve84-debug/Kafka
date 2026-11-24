@@ -124,7 +124,7 @@ jobs:
           gradle --version
           gradle :app:assembleDebug --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
 
-      - name: Build Release APK (requires GitHub Secrets)
+      - name: Build Release APK
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
         env:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
@@ -132,12 +132,27 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         shell: bash
         run: |
-          if [ -z "$RELEASE_KEYSTORE_BASE64" ] || [ -z "$STORE_PASSWORD" ] || [ -z "$KEY_PASSWORD" ]; then
-            echo "Missing RELEASE_KEYSTORE_BASE64, STORE_PASSWORD, or KEY_PASSWORD in GitHub repository secrets."
-            exit 1
+          if [ -n "$RELEASE_KEYSTORE_BASE64" ] && [ -n "$STORE_PASSWORD" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "Using release signing keystore from GitHub Secrets."
+            echo "$RELEASE_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > my-upload-key.jks
+            export KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks"
+          else
+            echo "Release secrets not configured; generating temporary upload keystore for installable Release APK."
+            keytool -genkeypair -v \
+              -keystore my-upload-key.jks \
+              -storepass android \
+              -alias upload \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Kafka Release,O=Kafka,C=ID"
+            export KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks"
+            export STORE_PASSWORD="android"
+            export KEY_PASSWORD="android"
           fi
-          echo "$RELEASE_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > my-upload-key.jks
-          KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks" gradle :app:assembleRelease --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
+          gradle --version
+          gradle :app:assembleRelease --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
 
       - name: Upload Debug APK Artifact
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
