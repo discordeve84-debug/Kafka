@@ -37,34 +37,34 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.MenuBook
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.automirrored.rounded.Send
-import androidx.compose.material.icons.automirrored.rounded.TrendingUp
-import androidx.compose.material.icons.automirrored.rounded.VolumeOff
-import androidx.compose.material.icons.automirrored.rounded.VolumeUp
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.BookmarkAdd
-import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.ContentCopy
-import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.ExpandLess
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material.icons.rounded.Forum
-import androidx.compose.material.icons.rounded.GraphicEq
-import androidx.compose.material.icons.rounded.Hub
-import androidx.compose.material.icons.rounded.Language
-import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.PictureAsPdf
-import androidx.compose.material.icons.rounded.Slideshow
-import androidx.compose.material.icons.rounded.Stop
-import androidx.compose.material.icons.rounded.Terminal
-import androidx.compose.material.icons.rounded.VerifiedUser
-import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material.icons.automirrored.sharp.MenuBook
+import androidx.compose.material.icons.automirrored.sharp.OpenInNew
+import androidx.compose.material.icons.automirrored.sharp.Send
+import androidx.compose.material.icons.automirrored.sharp.TrendingUp
+import androidx.compose.material.icons.automirrored.sharp.VolumeOff
+import androidx.compose.material.icons.automirrored.sharp.VolumeUp
+import androidx.compose.material.icons.sharp.Add
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.BookmarkAdd
+import androidx.compose.material.icons.sharp.Bookmarks
+import androidx.compose.material.icons.sharp.CheckCircle
+import androidx.compose.material.icons.sharp.Close
+import androidx.compose.material.icons.sharp.ContentCopy
+import androidx.compose.material.icons.sharp.DeleteOutline
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.ExpandLess
+import androidx.compose.material.icons.sharp.ExpandMore
+import androidx.compose.material.icons.sharp.Forum
+import androidx.compose.material.icons.sharp.GraphicEq
+import androidx.compose.material.icons.sharp.Hub
+import androidx.compose.material.icons.sharp.Language
+import androidx.compose.material.icons.sharp.Mic
+import androidx.compose.material.icons.sharp.PictureAsPdf
+import androidx.compose.material.icons.sharp.Slideshow
+import androidx.compose.material.icons.sharp.Stop
+import androidx.compose.material.icons.sharp.Terminal
+import androidx.compose.material.icons.sharp.VerifiedUser
+import androidx.compose.material.icons.sharp.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -225,7 +225,7 @@ fun AgentWorkspaceScreen(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Forum,
+                                    imageVector = Icons.Sharp.Forum,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(16.dp)
@@ -238,7 +238,7 @@ fun AgentWorkspaceScreen(
                                     modifier = Modifier.weight(1f, fill = false)
                                 )
                                 Icon(
-                                    imageVector = Icons.Rounded.ExpandMore,
+                                    imageVector = Icons.Sharp.ExpandMore,
                                     contentDescription = "Ganti sesi",
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -270,9 +270,9 @@ fun AgentWorkspaceScreen(
                             ) {
                                 Icon(
                                     imageVector = if (autoSpeakEnabled || isSpeaking) {
-                                        Icons.AutoMirrored.Rounded.VolumeUp
+                                        Icons.AutoMirrored.Sharp.VolumeUp
                                     } else {
-                                        Icons.AutoMirrored.Rounded.VolumeOff
+                                        Icons.AutoMirrored.Sharp.VolumeOff
                                     },
                                     contentDescription = "Mode percakapan suara (TTS)",
                                     tint = if (autoSpeakEnabled || isSpeaking) {
@@ -289,7 +289,7 @@ fun AgentWorkspaceScreen(
                                     .testTag("snapshot_header_button")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.BookmarkAdd,
+                                    imageVector = Icons.Sharp.BookmarkAdd,
                                     contentDescription = stringResource(R.string.cd_save_snapshot),
                                     tint = MaterialTheme.colorScheme.secondary
                                 )
@@ -301,7 +301,7 @@ fun AgentWorkspaceScreen(
                                     .testTag("new_session_button")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Add,
+                                    imageVector = Icons.Sharp.Add,
                                     contentDescription = stringResource(R.string.cd_new_session),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -322,7 +322,7 @@ fun AgentWorkspaceScreen(
                             selected = workspaceView == 0,
                             onClick = { onWorkspaceSubViewChange(0) },
                             leadingIcon = {
-                                Icon(Icons.Rounded.Forum, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Sharp.Forum, contentDescription = null, modifier = Modifier.size(16.dp))
                             },
                             label = { Text("Chat", style = MaterialTheme.typography.labelLarge) },
                             modifier = Modifier.testTag("workspace_tab_chat")
@@ -331,7 +331,7 @@ fun AgentWorkspaceScreen(
                             selected = workspaceView == 1,
                             onClick = { onWorkspaceSubViewChange(1) },
                             leadingIcon = {
-                                Icon(Icons.Rounded.Hub, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Sharp.Hub, contentDescription = null, modifier = Modifier.size(16.dp))
                             },
                             label = {
                                 Text(
@@ -345,7 +345,7 @@ fun AgentWorkspaceScreen(
                             selected = workspaceView == 2,
                             onClick = { onWorkspaceSubViewChange(2) },
                             leadingIcon = {
-                                Icon(Icons.Rounded.Bookmarks, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Sharp.Bookmarks, contentDescription = null, modifier = Modifier.size(16.dp))
                             },
                             label = {
                                 Text(
@@ -474,7 +474,7 @@ fun AgentWorkspaceScreen(
                                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
+                                                    imageVector = Icons.AutoMirrored.Sharp.TrendingUp,
                                                     contentDescription = null,
                                                     tint = MaterialTheme.colorScheme.secondary,
                                                     modifier = Modifier.size(16.dp)
@@ -663,7 +663,7 @@ fun AgentWorkspaceScreen(
                                 )
                             } else {
                                 Icon(
-                                    imageVector = if (voiceState.isRecording) Icons.Rounded.Stop else Icons.Rounded.Mic,
+                                    imageVector = if (voiceState.isRecording) Icons.Sharp.Stop else Icons.Sharp.Mic,
                                     contentDescription = stringResource(
                                         if (voiceState.isRecording) R.string.cd_stop_voice_input else R.string.cd_voice_input
                                     ),
@@ -704,7 +704,7 @@ fun AgentWorkspaceScreen(
                                 )
                             } else {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.Send,
+                                    imageVector = Icons.AutoMirrored.Sharp.Send,
                                     contentDescription = stringResource(R.string.cd_send_prompt),
                                     tint = if (promptInput.isNotBlank()) {
                                         MaterialTheme.colorScheme.onPrimary
@@ -781,7 +781,7 @@ fun AgentWorkspaceScreen(
                             showSessionsSheet = false
                         }
                     ) {
-                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Sharp.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("Sesi Baru")
                     }
@@ -882,7 +882,7 @@ private fun VoiceRecordingHudBanner(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.GraphicEq,
+                            imageVector = Icons.Sharp.GraphicEq,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
@@ -948,7 +948,7 @@ private fun VoiceRecordingHudBanner(
                             shape = RoundedCornerShape(10.dp),
                             modifier = Modifier.height(40.dp)
                         ) {
-                            Icon(Icons.Rounded.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Sharp.Close, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("Batal")
                         }
@@ -969,7 +969,7 @@ private fun VoiceRecordingHudBanner(
                                 .height(40.dp)
                                 .testTag("voice_send_now_button")
                         ) {
-                            Icon(Icons.AutoMirrored.Rounded.Send, contentDescription = null, modifier = Modifier.size(15.dp))
+                            Icon(Icons.AutoMirrored.Sharp.Send, contentDescription = null, modifier = Modifier.size(15.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("Kirim Suara")
                         }
@@ -988,7 +988,7 @@ private fun HermesWelcomeCard(
     Surface(
         color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(18.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.45f))
+        border = BorderStroke(1.2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.55f))
     ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -996,14 +996,20 @@ private fun HermesWelcomeCard(
                     drawableRes = R.drawable.img_kafka_anime_icon,
                     contentDescription = stringResource(R.string.cd_anime_mascot),
                     isActive = true,
-                    size = 48.dp
+                    size = 50.dp
                 )
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Kafka-Chan Siap Membantu!",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "Kafka Succubus Siap Membantu",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        SuccubusBatWingCrest(size = 14.dp)
+                    }
                     Text(
                         text = "${enabledSkills.size} skill aktif • Suara Mikrofon + Live Web + Jurnal",
                         style = MaterialTheme.typography.labelSmall,
@@ -1011,6 +1017,7 @@ private fun HermesWelcomeCard(
                     )
                 }
             }
+            SuccubusGothicDivider()
 
             Text(
                 text = "Mulai dengan salah satu alur kerja otonom di bawah, ketik perintah, atau tekan ikon mikrofon:",
@@ -1039,7 +1046,7 @@ private fun HermesWelcomeCard(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.AutoAwesome,
+                            imageVector = Icons.Sharp.AutoAwesome,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(18.dp)
@@ -1126,17 +1133,25 @@ private fun AgentResponseCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.img_kafka_anime_icon),
+                        painter = painterResource(
+                            id = kafkaExpressionDrawable(
+                                isVerifiedSuccess = status == VerificationStatus.VERIFIED
+                            )
+                        ),
                         contentDescription = stringResource(R.string.cd_anime_mascot),
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .size(22.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
                     )
                     Text(
-                        text = "KAFKA-CHAN",
+                        text = "KAFKA",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
+                    )
+                    SuccubusFourPointStar(
+                        size = 10.dp,
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
 
@@ -1153,9 +1168,9 @@ private fun AgentResponseCard(
                         ) {
                             Icon(
                                 imageVector = if (status == VerificationStatus.VERIFIED) {
-                                    Icons.Rounded.CheckCircle
+                                    Icons.Sharp.CheckCircle
                                 } else {
-                                    Icons.Rounded.WarningAmber
+                                    Icons.Sharp.WarningAmber
                                 },
                                 contentDescription = null,
                                 tint = badgeColor,
@@ -1191,7 +1206,7 @@ private fun AgentResponseCard(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Terminal,
+                                    imageVector = Icons.Sharp.Terminal,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.tertiary,
                                     modifier = Modifier.size(15.dp)
@@ -1203,7 +1218,7 @@ private fun AgentResponseCard(
                                 )
                             }
                             Icon(
-                                imageVector = if (traceExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                                imageVector = if (traceExpanded) Icons.Sharp.ExpandLess else Icons.Sharp.ExpandMore,
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -1276,31 +1291,31 @@ private fun AgentResponseCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 QuickExportPill(
-                    icon = Icons.Rounded.Description,
+                    icon = Icons.Sharp.Description,
                     label = "Pratinjau Word",
                     onClick = { onPreviewFormat(OutputFormat.DOCX) },
                     testTag = "preview_word_pill"
                 )
                 QuickExportPill(
-                    icon = Icons.Rounded.PictureAsPdf,
+                    icon = Icons.Sharp.PictureAsPdf,
                     label = "Pratinjau PDF",
                     onClick = { onPreviewFormat(OutputFormat.PDF) },
                     testTag = "preview_pdf_pill"
                 )
                 QuickExportPill(
-                    icon = Icons.Rounded.Slideshow,
+                    icon = Icons.Sharp.Slideshow,
                     label = "Pratinjau PPTX",
                     onClick = { onPreviewFormat(OutputFormat.PPTX) },
                     testTag = "preview_pptx_pill"
                 )
                 QuickExportPill(
-                    icon = Icons.Rounded.VerifiedUser,
+                    icon = Icons.Sharp.VerifiedUser,
                     label = "Verifikasi",
                     onClick = onVerifyAgain,
                     testTag = "verify_again_pill"
                 )
                 QuickExportPill(
-                    icon = if (isSpeaking) Icons.AutoMirrored.Rounded.VolumeOff else Icons.AutoMirrored.Rounded.VolumeUp,
+                    icon = if (isSpeaking) Icons.AutoMirrored.Sharp.VolumeOff else Icons.AutoMirrored.Sharp.VolumeUp,
                     label = if (isSpeaking) "Hentikan Suara" else "Bacakan",
                     onClick = onSpeak,
                     testTag = "speak_response_pill"
@@ -1386,7 +1401,7 @@ private fun CitationDetailBottomSheetContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = if (isJournal) Icons.AutoMirrored.Rounded.MenuBook else Icons.Rounded.Language,
+                    imageVector = if (isJournal) Icons.AutoMirrored.Sharp.MenuBook else Icons.Sharp.Language,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -1514,7 +1529,7 @@ private fun CitationDetailBottomSheetContent(
                         modifier = Modifier.size(40.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.ContentCopy,
+                            imageVector = Icons.Sharp.ContentCopy,
                             contentDescription = "Salin URL",
                             modifier = Modifier.size(17.dp)
                         )
@@ -1534,7 +1549,7 @@ private fun CitationDetailBottomSheetContent(
                     .weight(1f)
                     .height(48.dp)
             ) {
-                Icon(Icons.Rounded.VerifiedUser, contentDescription = null, modifier = Modifier.size(17.dp))
+                Icon(Icons.Sharp.VerifiedUser, contentDescription = null, modifier = Modifier.size(17.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Verifikasi")
             }
@@ -1546,7 +1561,7 @@ private fun CitationDetailBottomSheetContent(
                         .weight(1.2f)
                         .height(48.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
+                    Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Buka Sumber")
                 }
@@ -1605,7 +1620,7 @@ private fun CitationChipCard(
                     color = if (citation.verified) KafkaVerifiedGreen else MaterialTheme.colorScheme.tertiary
                 )
                 Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
+                    imageVector = Icons.AutoMirrored.Sharp.OpenInNew,
                     contentDescription = null,
                     modifier = Modifier.size(13.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1676,16 +1691,17 @@ private fun LiveHermesExecutionCard(execution: AgentExecutionState) {
             ) {
                 if (execution.isRunning) {
                     AnimePulseAvatar(
-                        drawableRes = R.drawable.img_kafka_anime_icon,
+                        drawableRes = kafkaExpressionDrawable(isRunning = true),
                         contentDescription = null,
                         isActive = true,
-                        size = 28.dp
+                        size = 30.dp
                     )
                     Text(
                         text = "KAFKA SEDANG BERPIKIR...",
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    SuccubusFourPointStar(size = 11.dp, color = MaterialTheme.colorScheme.secondary)
                     AnimeThinkingIndicator(dotSize = 6.dp)
                 } else {
                     Text(
@@ -1784,7 +1800,7 @@ private fun SessionListRow(
                 modifier = Modifier.size(48.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.DeleteOutline,
+                    imageVector = Icons.Sharp.DeleteOutline,
                     contentDescription = "Hapus sesi",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )

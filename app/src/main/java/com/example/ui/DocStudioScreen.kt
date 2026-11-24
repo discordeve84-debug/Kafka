@@ -20,16 +20,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Forum
-import androidx.compose.material.icons.rounded.PictureAsPdf
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Slideshow
-import androidx.compose.material.icons.rounded.TableChart
-import androidx.compose.material.icons.rounded.Verified
+import androidx.compose.material.icons.automirrored.sharp.OpenInNew
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.DeleteOutline
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.Forum
+import androidx.compose.material.icons.sharp.PictureAsPdf
+import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material.icons.sharp.Slideshow
+import androidx.compose.material.icons.sharp.TableChart
+import androidx.compose.material.icons.sharp.Verified
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -94,28 +94,42 @@ fun DocStudioScreen(
             item {
                 Surface(
                     color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(18.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                    modifier = Modifier.fillMaxWidth()
+                    shape = MaterialTheme.shapes.large,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.52f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .drawSuccubusCornerSigils(
+                            primaryColor = MaterialTheme.colorScheme.primary,
+                            secondaryColor = MaterialTheme.colorScheme.tertiary,
+                            accentLength = 10.dp
+                        )
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Rounded.AutoAwesome,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = "Document & Deck Generator",
-                                style = MaterialTheme.typography.titleLarge
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Sharp.AutoAwesome,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "Document & Deck Generator",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
+                            SuccubusBatWingCrest(size = 14.dp)
                         }
+                        SuccubusGothicDivider()
 
                         Text(
                             text = "Pilih format output (Word .docx, PDF, PowerPoint .pptx, Markdown, CSV). Kafka akan meriset sumber terkini secara opsional dan menyusun file asli di perangkat.",
@@ -229,7 +243,7 @@ fun DocStudioScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Description,
+                                imageVector = Icons.Sharp.Description,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(32.dp)
@@ -273,10 +287,10 @@ private fun ArtifactCard(
 ) {
     val format = OutputFormat.fromRaw(artifact.format)
     val icon = when (format) {
-        OutputFormat.PDF -> Icons.Rounded.PictureAsPdf
-        OutputFormat.PPTX -> Icons.Rounded.Slideshow
-        OutputFormat.CSV -> Icons.Rounded.TableChart
-        else -> Icons.Rounded.Description
+        OutputFormat.PDF -> Icons.Sharp.PictureAsPdf
+        OutputFormat.PPTX -> Icons.Sharp.Slideshow
+        OutputFormat.CSV -> Icons.Sharp.TableChart
+        else -> Icons.Sharp.Description
     }
 
     Surface(
@@ -326,7 +340,7 @@ private fun ArtifactCard(
 
                 if (artifact.verified) {
                     Icon(
-                        imageVector = Icons.Rounded.Verified,
+                        imageVector = Icons.Sharp.Verified,
                         contentDescription = "Terverifikasi",
                         tint = KafkaVerifiedGreen,
                         modifier = Modifier.size(20.dp)
@@ -354,7 +368,7 @@ private fun ArtifactCard(
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("Buka")
                 }
@@ -364,7 +378,7 @@ private fun ArtifactCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(
-                        Icons.Rounded.Share,
+                        Icons.Sharp.Share,
                         contentDescription = stringResource(R.string.cd_share_file),
                         modifier = Modifier.size(16.dp)
                     )
@@ -374,7 +388,7 @@ private fun ArtifactCard(
                 if (onOpenSession != null) {
                     IconButton(onClick = onOpenSession, modifier = Modifier.size(48.dp)) {
                         Icon(
-                            imageVector = Icons.Rounded.Forum,
+                            imageVector = Icons.Sharp.Forum,
                             contentDescription = "Buka sesi riset asal",
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -382,7 +396,7 @@ private fun ArtifactCard(
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(48.dp)) {
                     Icon(
-                        imageVector = Icons.Rounded.DeleteOutline,
+                        imageVector = Icons.Sharp.DeleteOutline,
                         contentDescription = "Hapus dokumen",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

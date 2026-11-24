@@ -22,16 +22,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.FactCheck
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Public
-import androidx.compose.material.icons.rounded.School
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.VerifiedUser
-import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material.icons.automirrored.sharp.FactCheck
+import androidx.compose.material.icons.automirrored.sharp.OpenInNew
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.CheckCircle
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.Public
+import androidx.compose.material.icons.sharp.School
+import androidx.compose.material.icons.sharp.Search
+import androidx.compose.material.icons.sharp.VerifiedUser
+import androidx.compose.material.icons.sharp.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -91,6 +91,56 @@ fun ResearchVerifyScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.52f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawSuccubusCornerSigils(
+                        primaryColor = MaterialTheme.colorScheme.primary,
+                        secondaryColor = MaterialTheme.colorScheme.tertiary,
+                        accentLength = 8.dp
+                    )
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    AnimePulseAvatar(
+                        drawableRes = kafkaExpressionDrawable(
+                            isRunning = state.isSearchingWeb || state.isSearchingJournals || state.isVerifying,
+                            isVerifiedSuccess = state.verificationReport != null
+                        ),
+                        contentDescription = null,
+                        isActive = state.isSearchingWeb || state.isSearchingJournals || state.isVerifying,
+                        size = 32.dp
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "Arsip Riset & Verifikasi",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            SuccubusBatWingCrest(size = 12.dp)
+                        }
+                        Text(
+                            text = "Live Web, Jurnal Terbuka, Koleksi GitHub & Audit Fakta",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    SuccubusHornCrest(size = 14.dp)
+                }
+            }
+
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 val tabs = listOf("Live Web", "Jurnal Ilmiah", "Verifikasi Isi")
                 tabs.forEachIndexed { idx, title ->
@@ -130,7 +180,7 @@ fun ResearchVerifyScreen(
                         if (state.webResults.isEmpty() && !state.isSearchingWeb) {
                             item {
                                 EmptyWorkbenchCard(
-                                    icon = Icons.Rounded.Public,
+                                    icon = Icons.Sharp.Public,
                                     title = "Live Web Search Real-Time",
                                     subtitle = "Menelusuri DuckDuckGo, Wikipedia (EN/ID), dan Algolia Tech Index secara langsung tanpa data tiruan."
                                 )
@@ -200,7 +250,7 @@ fun ResearchVerifyScreen(
                         if (state.journalResults.isEmpty() && !state.isSearchingJournals) {
                             item {
                                 EmptyWorkbenchCard(
-                                    icon = Icons.Rounded.School,
+                                    icon = Icons.Sharp.School,
                                     title = "Jurnal Terbuka & Koleksi GitHub",
                                     subtitle = "Menarik paper open-access langsung dari OpenAlex, Europe PMC, DOAJ, arXiv, Crossref DOI, dan repositori GitHub berisi paper yang bisa langsung dibuka."
                                 )
@@ -273,7 +323,7 @@ fun ResearchVerifyScreen(
                             Spacer(Modifier.width(10.dp))
                             Text("Mengaudit terhadap Web & Jurnal...")
                         } else {
-                            Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Sharp.FactCheck, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
                             Text("Verifikasi Isi & Klaim Sekarang")
                         }
@@ -292,7 +342,7 @@ fun ResearchVerifyScreen(
                         if (report == null && !state.isVerifying) {
                             item {
                                 EmptyWorkbenchCard(
-                                    icon = Icons.Rounded.VerifiedUser,
+                                    icon = Icons.Sharp.VerifiedUser,
                                     title = "Audit Verifikasi Fakta Multi-Sumber",
                                     subtitle = "Kafka mengekstrak klaim dari teks Anda, memeriksa tautan web dan jurnal ilmiah secara langsung, lalu memberi skor integritas."
                                 )
@@ -359,7 +409,7 @@ private fun SearchBarRow(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Icon(Icons.Rounded.Search, contentDescription = "Cari")
+                Icon(Icons.Sharp.Search, contentDescription = "Cari")
             }
         }
     }
@@ -411,17 +461,17 @@ private fun WebResultCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(onClick = onOpen, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Buka Web")
                 }
                 OutlinedButton(onClick = onVerify, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Sharp.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Verifikasi")
                 }
                 Button(onClick = onAskKafka, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Rounded.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.Sharp.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Tanya Kafka")
                 }
@@ -542,7 +592,7 @@ private fun JournalPaperCard(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.VerifiedUser,
+                                    imageVector = Icons.Sharp.VerifiedUser,
                                     contentDescription = null,
                                     tint = badgeColor,
                                     modifier = Modifier.size(16.dp)
@@ -612,25 +662,25 @@ private fun JournalPaperCard(
                         Spacer(Modifier.width(6.dp))
                         Text("Meringkas...")
                     } else {
-                        Icon(Icons.Rounded.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Icon(Icons.Sharp.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(if (aiSummary == null) "Ringkas & Verifikasi" else "Audit Ulang")
                     }
                 }
                 if (onOpenPdf != null) {
                     OutlinedButton(onClick = onOpenPdf, shape = RoundedCornerShape(10.dp)) {
-                        Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(5.dp))
                         Text("Buka PDF")
                     }
                 }
                 OutlinedButton(onClick = onOpen, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(5.dp))
                     Text("Buka Jurnal")
                 }
                 OutlinedButton(onClick = onExportDocx, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Rounded.Description, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.Sharp.Description, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(5.dp))
                     Text("DOCX")
                 }
@@ -714,7 +764,7 @@ private fun ClaimAuditCard(claim: ClaimCheck, onOpenUrl: (String) -> Unit) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 Icon(
-                    imageVector = if (claim.verdict == "SUPPORTED") Icons.Rounded.CheckCircle else Icons.Rounded.WarningAmber,
+                    imageVector = if (claim.verdict == "SUPPORTED") Icons.Sharp.CheckCircle else Icons.Sharp.WarningAmber,
                     contentDescription = null,
                     tint = color,
                     modifier = Modifier.size(16.dp)

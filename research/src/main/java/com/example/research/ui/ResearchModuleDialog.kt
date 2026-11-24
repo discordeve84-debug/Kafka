@@ -20,15 +20,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.FactCheck
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Public
-import androidx.compose.material.icons.rounded.School
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.VerifiedUser
-import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material.icons.automirrored.sharp.FactCheck
+import androidx.compose.material.icons.automirrored.sharp.OpenInNew
+import androidx.compose.material.icons.sharp.CheckCircle
+import androidx.compose.material.icons.sharp.Close
+import androidx.compose.material.icons.sharp.Public
+import androidx.compose.material.icons.sharp.School
+import androidx.compose.material.icons.sharp.Search
+import androidx.compose.material.icons.sharp.VerifiedUser
+import androidx.compose.material.icons.sharp.WarningAmber
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -183,7 +183,7 @@ fun ResearchModuleDialog(
                     },
                     actions = {
                         IconButton(onClick = onDismiss, modifier = Modifier.size(48.dp)) {
-                            Icon(Icons.Rounded.Close, contentDescription = "Tutup")
+                            Icon(Icons.Sharp.Close, contentDescription = "Tutup")
                         }
                     }
                 )
@@ -230,7 +230,7 @@ fun ResearchModuleDialog(
                             if (webResults.isEmpty() && !isSearchingWeb) {
                                 item {
                                     ModuleEmptyCard(
-                                        icon = Icons.Rounded.Public,
+                                        icon = Icons.Sharp.Public,
                                         title = "Live Web Search Real-Time",
                                         subtitle = "Menelusuri DuckDuckGo Live, Wikipedia EN/ID, Algolia Tech Index, dan GitHub tanpa data palsu."
                                     )
@@ -261,7 +261,7 @@ fun ResearchModuleDialog(
                                                 onClick = { runCatching { uriHandler.openUri(item.url) } },
                                                 shape = RoundedCornerShape(10.dp)
                                             ) {
-                                                Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                                                 Spacer(Modifier.width(5.dp))
                                                 Text("Buka Web")
                                             }
@@ -272,7 +272,7 @@ fun ResearchModuleDialog(
                                                 },
                                                 shape = RoundedCornerShape(10.dp)
                                             ) {
-                                                Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                Icon(Icons.AutoMirrored.Sharp.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
                                                 Spacer(Modifier.width(5.dp))
                                                 Text("Verifikasi")
                                             }
@@ -321,7 +321,7 @@ fun ResearchModuleDialog(
                             if (journalResults.isEmpty() && !isSearchingJournals) {
                                 item {
                                     ModuleEmptyCard(
-                                        icon = Icons.Rounded.School,
+                                        icon = Icons.Sharp.School,
                                         title = "Pencarian Jurnal Terbuka & GitHub",
                                         subtitle = "Cari jurnal ilmiah dari OpenAlex, Europe PMC, DOAJ, arXiv, Crossref, dan koleksi paper GitHub."
                                     )
@@ -414,7 +414,7 @@ fun ResearchModuleDialog(
                                                     onClick = { runCatching { uriHandler.openUri(pdf) } },
                                                     shape = RoundedCornerShape(10.dp)
                                                 ) {
-                                                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                    Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                                                     Spacer(Modifier.width(5.dp))
                                                     Text("Buka PDF")
                                                 }
@@ -426,7 +426,7 @@ fun ResearchModuleDialog(
                                                 },
                                                 shape = RoundedCornerShape(10.dp)
                                             ) {
-                                                Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                                                 Spacer(Modifier.width(5.dp))
                                                 Text("Buka Jurnal")
                                             }
@@ -464,7 +464,7 @@ fun ResearchModuleDialog(
                                 Spacer(Modifier.width(8.dp))
                                 Text("Memverifikasi Lintas Web & Jurnal...")
                             } else {
-                                Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null)
+                                Icon(Icons.AutoMirrored.Sharp.FactCheck, contentDescription = null)
                                 Spacer(Modifier.width(8.dp))
                                 Text("Jalankan Verifikasi Multi-Sumber")
                             }
@@ -481,7 +481,7 @@ fun ResearchModuleDialog(
                             if (report == null && !isVerifying) {
                                 item {
                                     ModuleEmptyCard(
-                                        icon = Icons.Rounded.VerifiedUser,
+                                        icon = Icons.Sharp.VerifiedUser,
                                         title = "Audit Verifikasi Tautan & Klaim",
                                         subtitle = "Memeriksa keterjangkauan URL HTTP serta mencocokkan klaim dengan sumber web & jurnal ilmiah."
                                     )
@@ -537,7 +537,7 @@ fun ResearchModuleDialog(
                                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                                 Icon(
-                                                    imageVector = if (claim.verdict == "SUPPORTED") Icons.Rounded.CheckCircle else Icons.Rounded.WarningAmber,
+                                                    imageVector = if (claim.verdict == "SUPPORTED") Icons.Sharp.CheckCircle else Icons.Sharp.WarningAmber,
                                                     contentDescription = null,
                                                     tint = color,
                                                     modifier = Modifier.size(16.dp)
@@ -602,7 +602,7 @@ private fun ModuleSearchRow(
                     color = MaterialTheme.colorScheme.onPrimary
                 )
             } else {
-                Icon(Icons.Rounded.Search, contentDescription = "Cari")
+                Icon(Icons.Sharp.Search, contentDescription = "Cari")
             }
         }
     }

@@ -23,16 +23,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.rounded.AddCircleOutline
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Code
-import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Download
-import androidx.compose.material.icons.rounded.Image
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.SportsEsports
-import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.automirrored.sharp.OpenInNew
+import androidx.compose.material.icons.sharp.AddCircleOutline
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.Code
+import androidx.compose.material.icons.sharp.DeleteOutline
+import androidx.compose.material.icons.sharp.Download
+import androidx.compose.material.icons.sharp.Image
+import androidx.compose.material.icons.sharp.Search
+import androidx.compose.material.icons.sharp.SportsEsports
+import androidx.compose.material.icons.sharp.Star
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -65,6 +65,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import com.example.R
 import com.example.model.AgentSkill
 import com.example.model.GitHubSkillRepo
 import com.example.model.SkillSourceType
@@ -98,6 +102,55 @@ fun SkillHubScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Surface(
+                color = MaterialTheme.colorScheme.surface,
+                shape = MaterialTheme.shapes.medium,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.52f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .drawSuccubusCornerSigils(
+                        primaryColor = MaterialTheme.colorScheme.primary,
+                        secondaryColor = MaterialTheme.colorScheme.tertiary,
+                        accentLength = 8.dp
+                    )
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_kafka_chibi),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(MaterialTheme.shapes.small)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "Grimoire Skill Kafka",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            SuccubusBatWingCrest(size = 12.dp)
+                        }
+                        Text(
+                            text = "${skills.count { it.enabled }} aktif dari ${skills.size} node • GitHub & Agen dari 0",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    SuccubusHornCrest(size = 14.dp)
+                }
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -136,7 +189,7 @@ fun SkillHubScreen(
                     onClick = onOpenImageStudio,
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Rounded.Image,
+                            imageVector = Icons.Sharp.Image,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.secondary
@@ -149,7 +202,7 @@ fun SkillHubScreen(
                     onClick = onOpenCyberGame,
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Rounded.SportsEsports,
+                            imageVector = Icons.Sharp.SportsEsports,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = MaterialTheme.colorScheme.primary
@@ -273,7 +326,7 @@ fun SkillHubScreen(
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
-                                Icon(Icons.Rounded.Search, contentDescription = "Cari GitHub")
+                                Icon(Icons.Sharp.Search, contentDescription = "Cari GitHub")
                             }
                         }
                     }
@@ -334,7 +387,7 @@ fun SkillHubScreen(
                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.AutoAwesome,
+                                    imageVector = Icons.Sharp.AutoAwesome,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.secondary
                                 )
@@ -406,7 +459,7 @@ fun SkillHubScreen(
                                     Spacer(Modifier.width(10.dp))
                                     Text("Merancang Skill dari 0...")
                                 } else {
-                                    Icon(Icons.Rounded.AddCircleOutline, contentDescription = null)
+                                    Icon(Icons.Sharp.AddCircleOutline, contentDescription = null)
                                     Spacer(Modifier.width(8.dp))
                                     Text("Rancang & Pasang Skill")
                                 }
@@ -513,7 +566,7 @@ private fun InstalledSkillCard(
                     if (source != SkillSourceType.BUILTIN) {
                         IconButton(onClick = onDelete, modifier = Modifier.size(48.dp)) {
                             Icon(
-                                imageVector = Icons.Rounded.DeleteOutline,
+                                imageVector = Icons.Sharp.DeleteOutline,
                                 contentDescription = "Hapus skill",
                                 tint = MaterialTheme.colorScheme.error
                             )
@@ -557,7 +610,7 @@ private fun GitHubRepoCard(
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    Icon(Icons.Rounded.Code, contentDescription = null, modifier = Modifier.size(32.dp))
+                    Icon(Icons.Sharp.Code, contentDescription = null, modifier = Modifier.size(32.dp))
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -582,7 +635,7 @@ private fun GitHubRepoCard(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Star,
+                            imageVector = Icons.Sharp.Star,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(13.dp)
@@ -606,7 +659,7 @@ private fun GitHubRepoCard(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = onOpenRepo, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Sharp.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Repo")
                 }
@@ -625,7 +678,7 @@ private fun GitHubRepoCard(
                         Spacer(Modifier.width(8.dp))
                         Text("Mengimpor SKILL.md...")
                     } else {
-                        Icon(Icons.Rounded.Download, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Sharp.Download, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Import jadi Skill Kafka")
                     }

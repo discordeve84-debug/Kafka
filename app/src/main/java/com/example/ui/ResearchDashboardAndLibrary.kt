@@ -20,18 +20,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.TrendingUp
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.BookmarkAdd
-import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.DeleteOutline
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Forum
-import androidx.compose.material.icons.rounded.Hub
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Restore
-import androidx.compose.material.icons.rounded.Verified
+import androidx.compose.material.icons.automirrored.sharp.TrendingUp
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.BookmarkAdd
+import androidx.compose.material.icons.sharp.Bookmarks
+import androidx.compose.material.icons.sharp.DeleteOutline
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.Forum
+import androidx.compose.material.icons.sharp.Hub
+import androidx.compose.material.icons.sharp.PlayArrow
+import androidx.compose.material.icons.sharp.Refresh
+import androidx.compose.material.icons.sharp.Restore
+import androidx.compose.material.icons.sharp.Verified
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -119,11 +119,7 @@ fun ResearchDashboardPanel(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Hub,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
+                                SuccubusBatWingCrest(size = 14.dp)
                                 Text(
                                     text = "Research Command Dashboard",
                                     style = MaterialTheme.typography.titleMedium
@@ -133,6 +129,7 @@ fun ResearchDashboardPanel(
                                 Text("+ Proyek Baru")
                             }
                         }
+                        SuccubusGothicDivider()
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -179,7 +176,7 @@ fun ResearchDashboardPanel(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
+                            imageVector = Icons.AutoMirrored.Sharp.TrendingUp,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(18.dp)
@@ -200,7 +197,7 @@ fun ResearchDashboardPanel(
                             Spacer(Modifier.width(6.dp))
                             Text("Memindai...")
                         } else {
-                            Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Sharp.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text("Perbarui Tren")
                         }
@@ -388,7 +385,7 @@ private fun TrendingTopicCard(
                 shape = RoundedCornerShape(10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Rounded.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
+                Icon(Icons.Sharp.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Riset di Chat", maxLines = 1)
             }
@@ -495,7 +492,7 @@ private fun ActiveProjectSummaryCard(
                     shape = RoundedCornerShape(10.dp),
                     contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Sharp.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
                     Text(if (isSelected) "Lanjutkan" else "Buka Proyek")
                 }
@@ -541,7 +538,7 @@ fun ResearchLibraryPanel(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Rounded.Bookmarks,
+                                imageVector = Icons.Sharp.Bookmarks,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary
                             )
@@ -563,7 +560,7 @@ fun ResearchLibraryPanel(
                                 .height(48.dp)
                                 .testTag("library_save_snapshot_button")
                         ) {
-                            Icon(Icons.Rounded.BookmarkAdd, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Sharp.BookmarkAdd, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.width(8.dp))
                             Text("Ambil Snapshot State Sekarang")
                         }
@@ -611,7 +608,7 @@ fun ResearchLibraryPanel(
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Bookmarks,
+                                        imageVector = Icons.Sharp.Bookmarks,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(32.dp)
@@ -697,7 +694,7 @@ private fun ResearchSnapshotCard(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Description,
+                                    imageVector = Icons.Sharp.Description,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier.size(12.dp)
@@ -717,7 +714,7 @@ private fun ResearchSnapshotCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.Verified,
+                        imageVector = Icons.Sharp.Verified,
                         contentDescription = null,
                         tint = KafkaVerifiedGreen,
                         modifier = Modifier.size(15.dp)
@@ -819,7 +816,7 @@ private fun ResearchSnapshotCard(
                         .height(44.dp)
                         .testTag("restore_snapshot_button")
                 ) {
-                    Icon(Icons.Rounded.Restore, contentDescription = null, modifier = Modifier.size(17.dp))
+                    Icon(Icons.Sharp.Restore, contentDescription = null, modifier = Modifier.size(17.dp))
                     Spacer(Modifier.width(6.dp))
                     Text(
                         text = if (snapshot.hasActivePreview) "Pulihkan Chat & Preview" else "Pulihkan ke Chat",
@@ -832,7 +829,7 @@ private fun ResearchSnapshotCard(
                     modifier = Modifier.size(48.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.DeleteOutline,
+                        imageVector = Icons.Sharp.DeleteOutline,
                         contentDescription = "Hapus snapshot",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -860,7 +857,7 @@ fun SaveSnapshotDialog(
         onDismissRequest = { if (!isSaving) onDismiss() },
         icon = {
             Icon(
-                imageVector = Icons.Rounded.BookmarkAdd,
+                imageVector = Icons.Sharp.BookmarkAdd,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )

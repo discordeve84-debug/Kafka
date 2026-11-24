@@ -3,6 +3,6 @@
     <item
         android:width="66dp"
         android:height="66dp"
-        android:drawable="@drawable/img_kafka_anime_icon"
+        android:drawable="@drawable/ic_kafka_succubus_launcher"
         android:gravity="center" />
 </layer-list>

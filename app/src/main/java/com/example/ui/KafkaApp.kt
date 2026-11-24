@@ -36,21 +36,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Logout
+import androidx.compose.material.icons.automirrored.sharp.Logout
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.TravelExplore
-import androidx.compose.material.icons.rounded.AccountTree
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.LightMode
-import androidx.compose.material.icons.rounded.Save
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.TravelExplore
+import androidx.compose.material.icons.sharp.AccountTree
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.DarkMode
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.Home
+import androidx.compose.material.icons.sharp.LightMode
+import androidx.compose.material.icons.sharp.Save
+import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material.icons.sharp.TravelExplore
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -73,6 +73,9 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -86,6 +89,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -110,7 +115,6 @@ import com.example.R
 import com.example.audio.AudioQueryRecorder
 import com.example.audio.KafkaVoiceSpeaker
 import com.example.core.attemptAutoSignIn
-import com.example.core.authStateFlow
 import com.example.core.signOutUser
 import com.example.data.KafkaAiEngine
 import com.example.data.KafkaFirestoreRepository
@@ -126,6 +130,8 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 private const val ROUTE_HOME = "home"
@@ -143,11 +149,11 @@ private data class KafkaNavTab(
 )
 
 private val KafkaTabs = listOf(
-    KafkaNavTab(ROUTE_HOME, R.string.nav_home, Icons.Rounded.Home, Icons.Outlined.Home, "nav_home"),
-    KafkaNavTab(ROUTE_AGENT, R.string.nav_agent, Icons.Rounded.AutoAwesome, Icons.Outlined.AutoAwesome, "nav_agent"),
-    KafkaNavTab(ROUTE_RESEARCH, R.string.nav_research, Icons.Rounded.TravelExplore, Icons.Outlined.TravelExplore, "nav_research"),
-    KafkaNavTab(ROUTE_SKILLS, R.string.nav_skills, Icons.Rounded.AccountTree, Icons.Outlined.AccountTree, "nav_skills"),
-    KafkaNavTab(ROUTE_STUDIO, R.string.nav_studio, Icons.Rounded.Description, Icons.Outlined.Description, "nav_studio"),
+    KafkaNavTab(ROUTE_HOME, R.string.nav_home, Icons.Sharp.Home, Icons.Outlined.Home, "nav_home"),
+    KafkaNavTab(ROUTE_AGENT, R.string.nav_agent, Icons.Sharp.AutoAwesome, Icons.Outlined.AutoAwesome, "nav_agent"),
+    KafkaNavTab(ROUTE_RESEARCH, R.string.nav_research, Icons.Sharp.TravelExplore, Icons.Outlined.TravelExplore, "nav_research"),
+    KafkaNavTab(ROUTE_SKILLS, R.string.nav_skills, Icons.Sharp.AccountTree, Icons.Outlined.AccountTree, "nav_skills"),
+    KafkaNavTab(ROUTE_STUDIO, R.string.nav_studio, Icons.Sharp.Description, Icons.Outlined.Description, "nav_studio"),
 )
 
 @Composable
@@ -186,15 +192,29 @@ fun AppNavigation(
         return
     }
 
-    val currentUser by activeAuth.authStateFlow()
-        .collectAsStateWithLifecycle(initialValue = activeAuth.currentUser)
+    var currentUser by remember(activeAuth) { mutableStateOf(activeAuth.currentUser) }
+    var autoSignInJob by remember(activeAuth) { mutableStateOf<Job?>(null) }
+
+    DisposableEffect(activeAuth) {
+        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            currentUser = firebaseAuth.currentUser
+        }
+        activeAuth.addAuthStateListener(listener)
+        currentUser = activeAuth.currentUser
+        onDispose {
+            activeAuth.removeAuthStateListener(listener)
+        }
+    }
 
     LaunchedEffect(activeAuth) {
         if (activeAuth.currentUser == null) {
-            attemptAutoSignIn(
+            autoSignInJob = attemptAutoSignIn(
                 context = context,
                 credentialManager = credentialManager,
-                onAuthSuccess = {},
+                auth = activeAuth,
+                onAuthSuccess = { signedUser ->
+                    currentUser = signedUser ?: activeAuth.currentUser
+                },
                 onUnauthenticated = {},
                 scope = scope
             )
@@ -203,7 +223,17 @@ fun AppNavigation(
 
     val user = currentUser
     if (user == null) {
-        AuthScreen(onAuthSuccess = {})
+        AuthScreen(
+            auth = activeAuth,
+            authScope = scope,
+            onBeforeInteractiveSignIn = {
+                autoSignInJob?.cancel()
+                autoSignInJob = null
+            },
+            onAuthSuccess = { signedUser ->
+                currentUser = signedUser ?: activeAuth.currentUser
+            }
+        )
     } else {
         key(user.uid) {
             AuthenticatedKafkaShell(
@@ -211,7 +241,9 @@ fun AppNavigation(
                 isDarkTheme = isDarkTheme,
                 onToggleTheme = onToggleTheme,
                 onSignOut = {
-                    signOutUser(credentialManager, scope)
+                    signOutUser(credentialManager, scope, auth = activeAuth) {
+                        currentUser = null
+                    }
                 }
             )
         }
@@ -237,26 +269,63 @@ private fun FirebaseConfigMissingScreen(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            Surface(
+                shape = RoundedCornerShape(18.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.55f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(128.dp)
             ) {
-                AnimePulseAvatar(
-                    drawableRes = R.drawable.img_kafka_anime_icon,
-                    contentDescription = stringResource(R.string.cd_kafka_logo),
-                    isActive = false,
-                    size = 56.dp
-                )
-                Column {
-                    Text(
-                        text = "Kafka v1.1",
-                        style = MaterialTheme.typography.headlineSmall
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_kafka_anime_hero),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
                     )
-                    Text(
-                        text = "Konfigurasi Firebase belum terpasang",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        MaterialTheme.colorScheme.background.copy(alpha = 0.92f),
+                                        MaterialTheme.colorScheme.background.copy(alpha = 0.45f)
+                                    )
+                                )
+                            )
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        AnimePulseAvatar(
+                            drawableRes = R.drawable.img_kafka_anime_icon,
+                            contentDescription = stringResource(R.string.cd_kafka_logo),
+                            isActive = false,
+                            size = 58.dp
+                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    text = "Kafka v1.2",
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+                                SuccubusBatWingCrest(size = 16.dp)
+                            }
+                            Text(
+                                text = "Konfigurasi Firebase belum terpasang",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
                 }
             }
 
@@ -412,113 +481,150 @@ private fun AuthenticatedKafkaShell(
             contentWindowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout),
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
-                TopAppBar(
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ),
-                    title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { navigateToTab(ROUTE_HOME) }
-                                .padding(end = 8.dp)
-                        ) {
-                            AnimePulseAvatar(
-                                drawableRes = R.drawable.img_kafka_anime_icon,
-                                contentDescription = stringResource(R.string.cd_kafka_logo),
-                                isActive = execution.isRunning,
-                                size = 36.dp
-                            )
-                            Column {
-                                Text(
-                                    text = "Kafka",
-                                    style = MaterialTheme.typography.titleLarge
+                Column {
+                    TopAppBar(
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        title = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .clip(MaterialTheme.shapes.small)
+                                    .clickable { navigateToTab(ROUTE_HOME) }
+                                    .padding(end = 8.dp)
+                            ) {
+                                AnimePulseAvatar(
+                                    drawableRes = kafkaExpressionDrawable(isRunning = execution.isRunning),
+                                    contentDescription = stringResource(R.string.cd_kafka_logo),
+                                    isActive = execution.isRunning,
+                                    size = 38.dp
                                 )
-                                Text(
-                                    text = if (execution.isRunning) "Sedang Meriset..." else "Anime AI Research Studio",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = if (execution.isRunning) {
-                                        MaterialTheme.colorScheme.secondary
-                                    } else {
-                                        MaterialTheme.colorScheme.primary
-                                    }
-                                )
-                            }
-                        }
-                    },
-                    actions = {
-                        IconButton(
-                            onClick = { showProfileSheet = true },
-                            modifier = Modifier
-                                .size(48.dp)
-                                .testTag("profile_button")
-                        ) {
-                            val photo = user.photoUrl
-                            if (photo != null) {
-                                AsyncImage(
-                                    model = photo,
-                                    contentDescription = "Profil pengguna",
-                                    modifier = Modifier
-                                        .size(32.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Surface(
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    shape = CircleShape,
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
+                                Column {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
                                         Text(
-                                            text = (userProfile?.displayName?.firstOrNull()
-                                                ?: user.displayName?.firstOrNull()
-                                                ?: 'K').toString(),
-                                            style = MaterialTheme.typography.labelLarge
+                                            text = "Kafka",
+                                            style = MaterialTheme.typography.titleLarge
                                         )
+                                        SuccubusBatWingCrest(size = 14.dp)
+                                        Surface(
+                                            color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.72f),
+                                            shape = MaterialTheme.shapes.extraSmall,
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.45f))
+                                        ) {
+                                            Text(
+                                                text = "v1.2",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.tertiary,
+                                                modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = if (execution.isRunning) "Sedang Meriset..." else "Succubus Dark-Fantasy Studio",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (execution.isRunning) {
+                                            MaterialTheme.colorScheme.secondary
+                                        } else {
+                                            MaterialTheme.colorScheme.primary
+                                        }
+                                    )
+                                }
+                            }
+                        },
+                        actions = {
+                            IconButton(
+                                onClick = { showProfileSheet = true },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .testTag("profile_button")
+                            ) {
+                                val photo = user.photoUrl
+                                if (photo != null) {
+                                    AsyncImage(
+                                        model = photo,
+                                        contentDescription = "Profil pengguna",
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        shape = MaterialTheme.shapes.small,
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.65f)),
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = (userProfile?.displayName?.firstOrNull()
+                                                    ?: user.displayName?.firstOrNull()
+                                                    ?: 'K').toString(),
+                                                style = MaterialTheme.typography.labelLarge
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                )
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f))
+                }
             },
             bottomBar = {
                 if (!useRail && !imeVisible) {
-                    NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.surface
-                    ) {
-                        KafkaTabs.forEach { tab ->
-                            val selected = currentRoute == tab.route
-                            val iconScale by animateFloatAsState(
-                                targetValue = if (selected) 1.14f else 1f,
-                                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                                label = "nav_icon_scale_${tab.route}"
-                            )
-                            NavigationBarItem(
-                                selected = selected,
-                                onClick = { navigateToTab(tab.route) },
-                                icon = {
-                                    Icon(
-                                        imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
-                                        contentDescription = stringResource(tab.labelRes),
-                                        modifier = Modifier.graphicsLayer {
-                                            scaleX = iconScale
-                                            scaleY = iconScale
+                    Column {
+                        HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.28f))
+                        NavigationBar(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ) {
+                            KafkaTabs.forEach { tab ->
+                                val selected = currentRoute == tab.route
+                                val iconScale by animateFloatAsState(
+                                    targetValue = if (selected) 1.14f else 1f,
+                                    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                                    label = "nav_icon_scale_${tab.route}"
+                                )
+                                NavigationBarItem(
+                                    selected = selected,
+                                    onClick = { navigateToTab(tab.route) },
+                                    icon = {
+                                        Box(contentAlignment = Alignment.TopEnd) {
+                                            Icon(
+                                                imageVector = if (selected) tab.selectedIcon else tab.unselectedIcon,
+                                                contentDescription = stringResource(tab.labelRes),
+                                                modifier = Modifier.graphicsLayer {
+                                                    scaleX = iconScale
+                                                    scaleY = iconScale
+                                                }
+                                            )
+                                            if (selected) {
+                                                SuccubusFourPointStar(
+                                                    size = 7.dp,
+                                                    color = MaterialTheme.colorScheme.secondary,
+                                                    modifier = Modifier.graphicsLayer {
+                                                        translationX = 4.dp.toPx()
+                                                        translationY = (-2).dp.toPx()
+                                                    }
+                                                )
+                                            }
                                         }
-                                    )
-                                },
-                                label = {
-                                    Text(
-                                        text = stringResource(tab.labelRes),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                },
-                                modifier = Modifier.testTag(tab.testTag)
-                            )
+                                    },
+                                    label = {
+                                        Text(
+                                            text = stringResource(tab.labelRes),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    },
+                                    modifier = Modifier.testTag(tab.testTag)
+                                )
+                            }
                         }
                     }
                 }
@@ -740,15 +846,35 @@ private fun ProfileManagementSheetContent(
             .padding(horizontal = 20.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = "Profil & Preferensi Kafka",
-            style = MaterialTheme.typography.titleLarge
-        )
-        Text(
-            text = user.email.orEmpty(),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            AnimePulseAvatar(
+                drawableRes = R.drawable.img_kafka_succubus_smile,
+                contentDescription = stringResource(R.string.cd_anime_mascot),
+                isActive = false,
+                size = 46.dp
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "Profil & Preferensi Kafka",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    SuccubusHornCrest(size = 15.dp)
+                }
+                Text(
+                    text = "${user.email.orEmpty()} • v1.2 Debug",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        SuccubusGothicDivider()
 
         OutlinedTextField(
             value = displayName,
@@ -807,7 +933,7 @@ private fun ProfileManagementSheetContent(
 
         Surface(
             color = MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(12.dp),
+            shape = MaterialTheme.shapes.medium,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -822,11 +948,11 @@ private fun ProfileManagementSheetContent(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                            imageVector = if (darkTheme) Icons.Rounded.DarkMode else Icons.Rounded.LightMode,
+                            imageVector = if (darkTheme) Icons.Sharp.DarkMode else Icons.Sharp.LightMode,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
-                        Text("Mode Gelap Hermes Studio", style = MaterialTheme.typography.bodyMedium)
+                        Text("Mode Gelap Succubus Obsidian", style = MaterialTheme.typography.bodyMedium)
                     }
                     Switch(checked = darkTheme, onCheckedChange = { darkTheme = it })
                 }
@@ -850,9 +976,9 @@ private fun ProfileManagementSheetContent(
                 .fillMaxWidth()
                 .height(48.dp)
                 .testTag("save_profile_button"),
-            shape = RoundedCornerShape(12.dp)
+            shape = MaterialTheme.shapes.medium
         ) {
-            Icon(Icons.Rounded.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+            Icon(Icons.Sharp.Save, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Text("Simpan Profil & Preferensi")
         }
@@ -876,7 +1002,7 @@ private fun ProfileManagementSheetContent(
         artifacts.take(3).forEach { art ->
             Surface(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(10.dp),
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
@@ -898,7 +1024,7 @@ private fun ProfileManagementSheetContent(
                         )
                     }
                     IconButton(onClick = { onShareArtifact(art) }, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Rounded.Share, contentDescription = "Bagikan")
+                        Icon(Icons.Sharp.Share, contentDescription = "Bagikan")
                     }
                 }
             }
@@ -910,9 +1036,9 @@ private fun ProfileManagementSheetContent(
                 .fillMaxWidth()
                 .height(48.dp)
                 .testTag("sign_out_button"),
-            shape = RoundedCornerShape(12.dp)
+            shape = MaterialTheme.shapes.medium
         ) {
-            Icon(Icons.AutoMirrored.Rounded.Logout, contentDescription = null)
+            Icon(Icons.AutoMirrored.Sharp.Logout, contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.sign_out))
         }

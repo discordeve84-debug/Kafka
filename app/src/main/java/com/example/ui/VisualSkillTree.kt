@@ -22,12 +22,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccountTree
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Build
-import androidx.compose.material.icons.rounded.Code
-import androidx.compose.material.icons.rounded.Forum
-import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.sharp.AccountTree
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.Build
+import androidx.compose.material.icons.sharp.Code
+import androidx.compose.material.icons.sharp.Forum
+import androidx.compose.material.icons.sharp.PlayArrow
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -100,7 +100,7 @@ fun VisualSkillTreeView(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Forum,
+                            imageVector = Icons.Sharp.Forum,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
@@ -151,13 +151,16 @@ fun VisualSkillTreeView(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
-                        modifier = Modifier.padding(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.weight(1f)
                         ) {
                             Surface(
                                 color = MaterialTheme.colorScheme.primary,
@@ -166,7 +169,7 @@ fun VisualSkillTreeView(
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
-                                        imageVector = Icons.Rounded.AccountTree,
+                                        imageVector = Icons.Sharp.AccountTree,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onPrimary,
                                         modifier = Modifier.size(20.dp)
@@ -175,17 +178,18 @@ fun VisualSkillTreeView(
                             }
                             Column {
                                 Text(
-                                    text = "Kafka Hermes Skill Tree",
+                                    text = "Kafka Succubus Skill Tree",
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                                 Text(
-                                    text = "${activeCount} dari ${skills.size} node terhubung ke sesi aktif",
+                                    text = "$activeCount dari ${skills.size} node terhubung ke sesi aktif",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
                                 )
                             }
                         }
+                        SuccubusBatWingCrest(size = 16.dp)
                     }
                 }
 
@@ -212,7 +216,7 @@ fun VisualSkillTreeView(
             SkillTreeBranchGroup(
                 branchTitle = "GitHub Discovered Skills",
                 branchSubtitle = "Skill yang diimpor dari repositori GitHub & MCP tools",
-                icon = Icons.Rounded.Code,
+                icon = Icons.Sharp.Code,
                 accentColor = MaterialTheme.colorScheme.tertiary,
                 skillsInBranch = githubSkills,
                 activeIds = activeIds,
@@ -230,7 +234,7 @@ fun VisualSkillTreeView(
             SkillTreeBranchGroup(
                 branchTitle = "AI Custom-Generated Agents",
                 branchSubtitle = "Agen khusus yang dirancang dari 0 oleh Kafka AI Architect",
-                icon = Icons.Rounded.AutoAwesome,
+                icon = Icons.Sharp.AutoAwesome,
                 accentColor = MaterialTheme.colorScheme.secondary,
                 skillsInBranch = aiCustomSkills,
                 activeIds = activeIds,
@@ -248,7 +252,7 @@ fun VisualSkillTreeView(
             SkillTreeBranchGroup(
                 branchTitle = "Core Research & Doc Nodes",
                 branchSubtitle = "Kemampuan bawaan Word, PDF, PPTX, Jurnal & Fact Verifier",
-                icon = Icons.Rounded.Build,
+                icon = Icons.Sharp.Build,
                 accentColor = MaterialTheme.colorScheme.primary,
                 skillsInBranch = builtInSkills,
                 activeIds = activeIds,
@@ -527,7 +531,7 @@ private fun SkillTreeLeafNodeRow(
                         shape = RoundedCornerShape(8.dp),
                         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
                     ) {
-                        Icon(Icons.Rounded.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Sharp.PlayArrow, contentDescription = null, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(3.dp))
                         Text("Pakai", style = MaterialTheme.typography.labelSmall)
                     }

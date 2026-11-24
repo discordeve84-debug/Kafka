@@ -25,15 +25,15 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BookmarkAdd
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.PictureAsPdf
-import androidx.compose.material.icons.rounded.SaveAlt
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.Slideshow
-import androidx.compose.material.icons.rounded.Verified
-import androidx.compose.material.icons.rounded.Visibility
+import androidx.compose.material.icons.sharp.BookmarkAdd
+import androidx.compose.material.icons.sharp.Close
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.PictureAsPdf
+import androidx.compose.material.icons.sharp.SaveAlt
+import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material.icons.sharp.Slideshow
+import androidx.compose.material.icons.sharp.Verified
+import androidx.compose.material.icons.sharp.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
@@ -136,7 +136,7 @@ fun DocumentPreviewOverlay(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Visibility,
+                                        imageVector = Icons.Sharp.Visibility,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                                         modifier = Modifier.size(14.dp)
@@ -160,7 +160,7 @@ fun DocumentPreviewOverlay(
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.Verified,
+                                            imageVector = Icons.Sharp.Verified,
                                             contentDescription = null,
                                             tint = KafkaVerifiedGreen,
                                             modifier = Modifier.size(13.dp)
@@ -185,7 +185,7 @@ fun DocumentPreviewOverlay(
                                         .testTag("preview_snapshot_button")
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.BookmarkAdd,
+                                        imageVector = Icons.Sharp.BookmarkAdd,
                                         contentDescription = stringResource(R.string.cd_save_snapshot),
                                         tint = MaterialTheme.colorScheme.primary
                                     )
@@ -199,7 +199,7 @@ fun DocumentPreviewOverlay(
                                     .testTag("close_preview_button")
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Close,
+                                    imageVector = Icons.Sharp.Close,
                                     contentDescription = stringResource(R.string.cd_close_preview)
                                 )
                             }
@@ -215,9 +215,9 @@ fun DocumentPreviewOverlay(
                     ) {
                         listOf(OutputFormat.DOCX, OutputFormat.PDF, OutputFormat.PPTX).forEach { fmt ->
                             val icon = when (fmt) {
-                                OutputFormat.PDF -> Icons.Rounded.PictureAsPdf
-                                OutputFormat.PPTX -> Icons.Rounded.Slideshow
-                                else -> Icons.Rounded.Description
+                                OutputFormat.PDF -> Icons.Sharp.PictureAsPdf
+                                OutputFormat.PPTX -> Icons.Sharp.Slideshow
+                                else -> Icons.Sharp.Description
                             }
                             FilterChip(
                                 selected = activeFormat == fmt,
@@ -323,7 +323,7 @@ fun DocumentPreviewOverlay(
                         if (state.isExporting) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         } else {
-                            Icon(Icons.Rounded.SaveAlt, contentDescription = null, modifier = Modifier.size(17.dp))
+                            Icon(Icons.Sharp.SaveAlt, contentDescription = null, modifier = Modifier.size(17.dp))
                             Spacer(Modifier.width(6.dp))
                             Text("Simpan", maxLines = 1, overflow = TextOverflow.Ellipsis)
                         }
@@ -338,7 +338,7 @@ fun DocumentPreviewOverlay(
                             .height(48.dp)
                             .testTag("preview_export_share_button")
                     ) {
-                        Icon(Icons.Rounded.Share, contentDescription = null, modifier = Modifier.size(17.dp))
+                        Icon(Icons.Sharp.Share, contentDescription = null, modifier = Modifier.size(17.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("Ekspor & Bagikan", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }

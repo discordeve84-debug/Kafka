@@ -4,56 +4,66 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
-// Anime Cyber-Atelier & Obsidian Precision Tokens
-val ObsidianBg = Color(0xFF090B14)
-val ObsidianSurface = Color(0xFF111524)
-val ObsidianSurfaceElevated = Color(0xFF192036)
-val ObsidianSurfaceHighest = Color(0xFF232B47)
-val ObsidianBorder = Color(0xFF2B3556)
+// Kafka Succubus Dark Fantasy Palette: Deep Royal Purples + Sharp Crimson Accents
+val ObsidianBg = Color(0xFF09040F)
+val ObsidianSurface = Color(0xFF12081C)
+val ObsidianSurfaceElevated = Color(0xFF1C0E2B)
+val ObsidianSurfaceHighest = Color(0xFF28153B)
+val ObsidianBorder = Color(0xFF53256B)
 
-val KafkaMint = Color(0xFF2DD4BF)
-val KafkaMintDark = Color(0xFF0F766E)
-val KafkaMintContainer = Color(0xFF0E3A3A)
+// Primary: Sharp Succubus Crimson (#EB1E63)
+val KafkaCrimson = Color(0xFFEB1E63)
+val KafkaCrimsonDark = Color(0xFFB9124E)
+val KafkaCrimsonContainer = Color(0xFF500A29)
 
-val KafkaSakura = Color(0xFFF472B6)
-val KafkaSakuraDark = Color(0xFFDB2777)
-val KafkaSakuraContainer = Color(0xFF421734)
+// Preserved symbol aliases
+val KafkaMint = KafkaCrimson
+val KafkaMintDark = KafkaCrimsonDark
+val KafkaMintContainer = KafkaCrimsonContainer
 
+// Secondary: Soft Sakura-Rose Edge Highlight (#F69EC4)
+val KafkaSakura = Color(0xFFF69EC4)
+val KafkaSakuraDark = Color(0xFF9D174D)
+val KafkaSakuraContainer = Color(0xFF3E1233)
+
+// Tertiary: Arcane Royal Amethyst (#C084FC)
+val KafkaAmethyst = Color(0xFFC084FC)
+val KafkaAmethystContainer = Color(0xFF331452)
+val KafkaCyan = KafkaAmethyst
+val KafkaCyanContainer = KafkaAmethystContainer
+
+// Semantic Status & Gold Accents
 val KafkaAmber = Color(0xFFF59E0B)
 val KafkaAmberContainer = Color(0xFF452A06)
-
-val KafkaCyan = Color(0xFF818CF8)
-val KafkaCyanContainer = Color(0xFF1E2250)
-
 val KafkaVerifiedGreen = Color(0xFF10B981)
 val KafkaWarningAmber = Color(0xFFFBBF24)
-val KafkaErrorRed = Color(0xFFEF4444)
-val KafkaErrorContainer = Color(0xFF4C1419)
+val KafkaErrorRed = Color(0xFFF43F5E)
+val KafkaErrorContainer = Color(0xFF520C21)
 
-val TextPrimaryDark = Color(0xFFF1F5F9)
-val TextSecondaryDark = Color(0xFF9AA7C4)
+val TextPrimaryDark = Color(0xFFFCEEF7)
+val TextSecondaryDark = Color(0xFFD0AFDC)
 
-// Clean Light Theme Tokens
-val AlabasterBg = Color(0xFFF7F6FC)
+// Rose-Amethyst Light Theme Tokens (for optional light mode toggle)
+val AlabasterBg = Color(0xFFFAF5FF)
 val AlabasterSurface = Color(0xFFFFFFFF)
-val AlabasterSurfaceElevated = Color(0xFFF0EEF9)
-val AlabasterBorder = Color(0xFFDCD8EE)
-val TextPrimaryLight = Color(0xFF111322)
-val TextSecondaryLight = Color(0xFF4E5573)
+val AlabasterSurfaceElevated = Color(0xFFF4EAFC)
+val AlabasterBorder = Color(0xFFDCC3EB)
+val TextPrimaryLight = Color(0xFF1E0926)
+val TextSecondaryLight = Color(0xFF623B72)
 
 val KafkaDarkColorScheme = darkColorScheme(
-    primary = KafkaMint,
-    onPrimary = Color(0xFF032320),
-    primaryContainer = KafkaMintContainer,
-    onPrimaryContainer = Color(0xFF99F6E4),
+    primary = KafkaCrimson,
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = KafkaCrimsonContainer,
+    onPrimaryContainer = Color(0xFFFFD6E6),
     secondary = KafkaSakura,
-    onSecondary = Color(0xFF33061E),
+    onSecondary = Color(0xFF36041D),
     secondaryContainer = KafkaSakuraContainer,
-    onSecondaryContainer = Color(0xFFFBCFE8),
-    tertiary = KafkaCyan,
-    onTertiary = Color(0xFF0B1038),
-    tertiaryContainer = KafkaCyanContainer,
-    onTertiaryContainer = Color(0xFFE0E7FF),
+    onSecondaryContainer = Color(0xFFFDE0EE),
+    tertiary = KafkaAmethyst,
+    onTertiary = Color(0xFF1E0638),
+    tertiaryContainer = KafkaAmethystContainer,
+    onTertiaryContainer = Color(0xFFF2E6FF),
     background = ObsidianBg,
     onBackground = TextPrimaryDark,
     surface = ObsidianSurface,
@@ -65,26 +75,26 @@ val KafkaDarkColorScheme = darkColorScheme(
     surfaceContainer = ObsidianSurfaceElevated,
     surfaceContainerHigh = ObsidianSurfaceHighest,
     outline = ObsidianBorder,
-    outlineVariant = Color(0xFF1F2740),
+    outlineVariant = Color(0xFF37184A),
     error = KafkaErrorRed,
     onError = Color.White,
     errorContainer = KafkaErrorContainer,
-    onErrorContainer = Color(0xFFFECACA),
+    onErrorContainer = Color(0xFFFFD6DF),
 )
 
 val KafkaLightColorScheme = lightColorScheme(
-    primary = KafkaMintDark,
+    primary = KafkaCrimsonDark,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFCCFBF1),
-    onPrimaryContainer = Color(0xFF042F2E),
+    primaryContainer = Color(0xFFFCE7F3),
+    onPrimaryContainer = Color(0xFF500724),
     secondary = KafkaSakuraDark,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFFCE7F3),
-    onSecondaryContainer = Color(0xFF500724),
-    tertiary = Color(0xFF4F46E5),
+    secondaryContainer = Color(0xFFFAD8E9),
+    onSecondaryContainer = Color(0xFF420822),
+    tertiary = Color(0xFF7E22CE),
     onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFE0E7FF),
-    onTertiaryContainer = Color(0xFF1E1B4B),
+    tertiaryContainer = Color(0xFFF3E8FF),
+    onTertiaryContainer = Color(0xFF2E1065),
     background = AlabasterBg,
     onBackground = TextPrimaryLight,
     surface = AlabasterSurface,
@@ -94,11 +104,11 @@ val KafkaLightColorScheme = lightColorScheme(
     surfaceContainerLowest = Color.White,
     surfaceContainerLow = AlabasterBg,
     surfaceContainer = AlabasterSurfaceElevated,
-    surfaceContainerHigh = Color(0xFFE5E1F5),
+    surfaceContainerHigh = Color(0xFFEBD9FA),
     outline = AlabasterBorder,
-    outlineVariant = Color(0xFFE5E1F5),
-    error = Color(0xFFDC2626),
+    outlineVariant = Color(0xFFE5CFF5),
+    error = Color(0xFFE11D48),
     onError = Color.White,
-    errorContainer = Color(0xFFFEE2E2),
-    onErrorContainer = Color(0xFF7F1D1D),
+    errorContainer = Color(0xFFFFE4E6),
+    onErrorContainer = Color(0xFF881337),
 )

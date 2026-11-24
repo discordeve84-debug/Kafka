@@ -38,18 +38,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.automirrored.rounded.TrendingUp
-import androidx.compose.material.icons.rounded.AccountTree
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.Forum
-import androidx.compose.material.icons.rounded.Hub
-import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.compose.material.icons.rounded.Public
-import androidx.compose.material.icons.rounded.School
-import androidx.compose.material.icons.rounded.VerifiedUser
+import androidx.compose.material.icons.automirrored.sharp.ArrowForward
+import androidx.compose.material.icons.automirrored.sharp.TrendingUp
+import androidx.compose.material.icons.sharp.AccountTree
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.Bookmarks
+import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.Forum
+import androidx.compose.material.icons.sharp.Hub
+import androidx.compose.material.icons.sharp.PlayArrow
+import androidx.compose.material.icons.sharp.Public
+import androidx.compose.material.icons.sharp.School
+import androidx.compose.material.icons.sharp.VerifiedUser
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -149,17 +149,24 @@ fun HomeScreen(
                 ) {
                     Surface(
                         color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(22.dp),
+                        shape = MaterialTheme.shapes.large,
                         border = BorderStroke(
                             1.2.dp,
                             Brush.linearGradient(
                                 listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.65f),
                                     MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)
                                 )
                             )
                         ),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .drawSuccubusCornerSigils(
+                                primaryColor = MaterialTheme.colorScheme.primary,
+                                secondaryColor = MaterialTheme.colorScheme.tertiary,
+                                accentLength = 12.dp
+                            )
                     ) {
                         Box(modifier = Modifier.fillMaxWidth()) {
                             // Atmospheric anime atelier background
@@ -198,38 +205,55 @@ fun HomeScreen(
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Surface(
-                                        color = MaterialTheme.colorScheme.secondaryContainer,
-                                        shape = RoundedCornerShape(999.dp)
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.88f),
+                                        shape = RoundedCornerShape(999.dp),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
                                     ) {
                                         Row(
                                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                             verticalAlignment = Alignment.CenterVertically,
                                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                                         ) {
+                                            SuccubusBatWingCrest(size = 12.dp)
                                             Box(
                                                 modifier = Modifier
-                                                    .size(7.dp)
+                                                    .size(6.dp)
                                                     .clip(CircleShape)
-                                                    .background(KafkaVerifiedGreen)
+                                                    .background(
+                                                        if (execution.isRunning) {
+                                                            MaterialTheme.colorScheme.secondary
+                                                        } else {
+                                                            KafkaVerifiedGreen
+                                                        }
+                                                    )
                                             )
                                             Text(
-                                                text = if (execution.isRunning) "KAFKA SEDANG RISET..." else "KAFKA-CHAN • READY",
+                                                text = if (execution.isRunning) "KAFKA SEDANG RISET..." else "SUCCUBUS • READY",
                                                 style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
                                                 maxLines = 1
                                             )
                                         }
                                     }
 
-                                    Text(
-                                        text = "Ohayou, $firstName!",
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Text(
+                                            text = "Selamat datang, $firstName",
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        SuccubusFourPointStar(
+                                            size = 14.dp,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
 
                                     Text(
-                                        text = "Partner riset anime AI Anda siap mencari web live, merangkum jurnal DOI, memverifikasi klaim & menyusun dokumen.",
+                                        text = "Demon • Dark Fantasy • Partner riset AI siap mencari web live, jurnal DOI, verifikasi & menyusun dokumen.",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -238,7 +262,7 @@ fun HomeScreen(
 
                                     Button(
                                         onClick = { onOpenChat(null) },
-                                        shape = RoundedCornerShape(12.dp),
+                                        shape = MaterialTheme.shapes.small,
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.primary,
                                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -248,7 +272,7 @@ fun HomeScreen(
                                             .testTag("home_start_chat_button")
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Rounded.AutoAwesome,
+                                            imageVector = Icons.Sharp.AutoAwesome,
                                             contentDescription = null,
                                             modifier = Modifier.size(17.dp)
                                         )
@@ -257,34 +281,44 @@ fun HomeScreen(
                                     }
                                 }
 
-                                // Floating Anime Girl Character Portrait
+                                // Floating Kafka Succubus Full-Body Portrait
                                 Box(
                                     modifier = Modifier
-                                        .width(108.dp)
-                                        .height(150.dp)
+                                        .width(106.dp)
+                                        .height(162.dp)
                                         .offset(y = mascotFloatY.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Surface(
-                                        shape = RoundedCornerShape(18.dp),
+                                        shape = MaterialTheme.shapes.large,
                                         border = BorderStroke(
                                             1.5.dp,
                                             Brush.verticalGradient(
                                                 listOf(
-                                                    MaterialTheme.colorScheme.secondary,
-                                                    MaterialTheme.colorScheme.primary
+                                                    MaterialTheme.colorScheme.primary,
+                                                    MaterialTheme.colorScheme.tertiary,
+                                                    MaterialTheme.colorScheme.secondary
                                                 )
                                             )
                                         ),
-                                        shadowElevation = 6.dp,
+                                        shadowElevation = 8.dp,
                                         modifier = Modifier.fillMaxSize()
                                     ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.img_kafka_anime_mascot),
-                                            contentDescription = stringResource(R.string.cd_anime_mascot),
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier.fillMaxSize()
-                                        )
+                                        Box(modifier = Modifier.fillMaxSize()) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.img_kafka_anime_mascot),
+                                                contentDescription = stringResource(R.string.cd_anime_mascot),
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                            SuccubusFourPointStar(
+                                                size = 13.dp,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier
+                                                    .align(Alignment.BottomEnd)
+                                                    .padding(6.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -306,7 +340,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         HomeStatPill(
-                            icon = Icons.Rounded.Hub,
+                            icon = Icons.Sharp.Hub,
                             value = "${sessions.size}",
                             label = "Proyek",
                             accent = MaterialTheme.colorScheme.primary,
@@ -314,7 +348,7 @@ fun HomeScreen(
                             modifier = Modifier.weight(1f)
                         )
                         HomeStatPill(
-                            icon = Icons.Rounded.AccountTree,
+                            icon = Icons.Sharp.AccountTree,
                             value = "$activeSkillCount",
                             label = "Skill Aktif",
                             accent = MaterialTheme.colorScheme.secondary,
@@ -322,7 +356,7 @@ fun HomeScreen(
                             modifier = Modifier.weight(1f)
                         )
                         HomeStatPill(
-                            icon = Icons.Rounded.Bookmarks,
+                            icon = Icons.Sharp.Bookmarks,
                             value = "${snapshots.size}",
                             label = "Library",
                             accent = MaterialTheme.colorScheme.tertiary,
@@ -336,11 +370,17 @@ fun HomeScreen(
             // 3. Quick Launch Modules (2x2 Grid with Bouncy Spring Cards)
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(
-                        text = "STUDIO KEMAMPUAN KAFKA",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SuccubusHornCrest(size = 14.dp)
+                        Text(
+                            text = "STUDIO KEMAMPUAN KAFKA",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -349,7 +389,7 @@ fun HomeScreen(
                         HomeFeatureCard(
                             title = "Live Web Search",
                             subtitle = "Cari & audit web real-time",
-                            icon = Icons.Rounded.Public,
+                            icon = Icons.Sharp.Public,
                             accentColor = MaterialTheme.colorScheme.primary,
                             onClick = { onOpenResearch(0) },
                             modifier = Modifier.weight(1f),
@@ -358,7 +398,7 @@ fun HomeScreen(
                         HomeFeatureCard(
                             title = "Jurnal & Verifikasi",
                             subtitle = "OpenAlex, arXiv & cek fakta",
-                            icon = Icons.Rounded.School,
+                            icon = Icons.Sharp.School,
                             accentColor = MaterialTheme.colorScheme.secondary,
                             onClick = { onOpenResearch(1) },
                             modifier = Modifier.weight(1f),
@@ -373,7 +413,7 @@ fun HomeScreen(
                         HomeFeatureCard(
                             title = "Skill Tree & GitHub",
                             subtitle = "${skills.size} node & agen dari 0",
-                            icon = Icons.Rounded.AccountTree,
+                            icon = Icons.Sharp.AccountTree,
                             accentColor = MaterialTheme.colorScheme.tertiary,
                             onClick = onOpenSkills,
                             modifier = Modifier.weight(1f),
@@ -382,7 +422,7 @@ fun HomeScreen(
                         HomeFeatureCard(
                             title = "Word, PDF & PPTX",
                             subtitle = "${artifacts.size} dokumen tersimpan",
-                            icon = Icons.Rounded.Description,
+                            icon = Icons.Sharp.Description,
                             accentColor = KafkaAmber,
                             onClick = onOpenStudio,
                             modifier = Modifier.weight(1f),
@@ -393,7 +433,7 @@ fun HomeScreen(
                     HomeFeatureCard(
                         title = "Verifikasi Klaim, Jurnal & Tautan",
                         subtitle = "Cek keabsahan isi, DOI, & status HTTP web secara real-time",
-                        icon = Icons.Rounded.VerifiedUser,
+                        icon = Icons.Sharp.VerifiedUser,
                         accentColor = KafkaVerifiedGreen,
                         onClick = { onOpenResearch(2) },
                         modifier = Modifier.fillMaxWidth(),
@@ -416,7 +456,7 @@ fun HomeScreen(
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
+                                    imageVector = Icons.AutoMirrored.Sharp.TrendingUp,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.secondary,
                                     modifier = Modifier.size(18.dp)
@@ -532,7 +572,7 @@ private fun HomeStatPill(
     Surface(
         onClick = onClick,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(14.dp),
+        shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = modifier
     ) {
@@ -543,7 +583,8 @@ private fun HomeStatPill(
         ) {
             Surface(
                 color = accent.copy(alpha = 0.16f),
-                shape = RoundedCornerShape(10.dp),
+                shape = MaterialTheme.shapes.small,
+                border = BorderStroke(1.dp, accent.copy(alpha = 0.38f)),
                 modifier = Modifier.size(32.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -596,13 +637,18 @@ private fun HomeFeatureCard(
         onClick = onClick,
         interactionSource = interactionSource,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.35f)),
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.42f)),
         modifier = modifier
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
+            .drawSuccubusCornerSigils(
+                primaryColor = accentColor,
+                secondaryColor = MaterialTheme.colorScheme.tertiary,
+                accentLength = 8.dp
+            )
             .testTag(testTag)
     ) {
         Column(
@@ -616,7 +662,8 @@ private fun HomeFeatureCard(
             ) {
                 Surface(
                     color = accentColor.copy(alpha = 0.16f),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = MaterialTheme.shapes.small,
+                    border = BorderStroke(1.dp, accentColor.copy(alpha = 0.45f)),
                     modifier = Modifier.size(38.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -628,12 +675,21 @@ private fun HomeFeatureCard(
                         )
                     }
                 }
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForward,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    SuccubusFourPointStar(
+                        size = 10.dp,
+                        color = accentColor.copy(alpha = 0.85f)
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Sharp.ArrowForward,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
             }
 
             Text(
@@ -662,8 +718,8 @@ private fun HomeTrendingPillCard(
     Surface(
         onClick = onClick,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(14.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.4f)),
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary.copy(alpha = 0.48f)),
         modifier = Modifier.width(216.dp)
     ) {
         Column(
@@ -706,7 +762,7 @@ private fun HomeSessionQuickCard(
     Surface(
         onClick = onResume,
         color = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(14.dp),
+        shape = MaterialTheme.shapes.medium,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -717,12 +773,13 @@ private fun HomeSessionQuickCard(
         ) {
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(10.dp),
+                shape = MaterialTheme.shapes.small,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)),
                 modifier = Modifier.size(38.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Rounded.Forum,
+                        imageVector = Icons.Sharp.Forum,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)
@@ -744,7 +801,7 @@ private fun HomeSessionQuickCard(
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.VerifiedUser,
+                        imageVector = Icons.Sharp.VerifiedUser,
                         contentDescription = null,
                         tint = KafkaVerifiedGreen,
                         modifier = Modifier.size(13.dp)
@@ -760,12 +817,13 @@ private fun HomeSessionQuickCard(
             }
             Surface(
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
-                shape = RoundedCornerShape(10.dp),
+                shape = MaterialTheme.shapes.small,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.42f)),
                 modifier = Modifier.size(34.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Rounded.PlayArrow,
+                        imageVector = Icons.Sharp.PlayArrow,
                         contentDescription = "Buka sesi",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(18.dp)

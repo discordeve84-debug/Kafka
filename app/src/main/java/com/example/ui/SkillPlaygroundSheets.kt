@@ -29,16 +29,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.ArrowUpward
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.PhotoLibrary
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Share
-import androidx.compose.material.icons.rounded.SportsEsports
+import androidx.compose.material.icons.automirrored.sharp.ArrowBack
+import androidx.compose.material.icons.automirrored.sharp.ArrowForward
+import androidx.compose.material.icons.sharp.ArrowDownward
+import androidx.compose.material.icons.sharp.ArrowUpward
+import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.Close
+import androidx.compose.material.icons.sharp.PhotoLibrary
+import androidx.compose.material.icons.sharp.Refresh
+import androidx.compose.material.icons.sharp.Share
+import androidx.compose.material.icons.sharp.SportsEsports
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -131,7 +131,7 @@ fun ImageStudioDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.AutoAwesome,
+                            imageVector = Icons.Sharp.AutoAwesome,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary
                         )
@@ -148,7 +148,7 @@ fun ImageStudioDialog(
                         }
                     }
                     IconButton(onClick = onDismiss, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Rounded.Close, contentDescription = "Tutup Studio Gambar")
+                        Icon(Icons.Sharp.Close, contentDescription = "Tutup Studio Gambar")
                     }
                 }
 
@@ -166,7 +166,7 @@ fun ImageStudioDialog(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.height(48.dp)
                     ) {
-                        Icon(Icons.Rounded.PhotoLibrary, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Sharp.PhotoLibrary, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
                         Text(if (pickedBitmap == null) "Pilih Foto (Edit)" else "Ganti Foto")
                     }
@@ -247,7 +247,7 @@ fun ImageStudioDialog(
                         Spacer(Modifier.width(10.dp))
                         Text("Memproses (30-60 detik)...")
                     } else {
-                        Icon(Icons.Rounded.AutoAwesome, contentDescription = null)
+                        Icon(Icons.Sharp.AutoAwesome, contentDescription = null)
                         Spacer(Modifier.width(8.dp))
                         Text(if (pickedBitmap != null) "Edit Foto dengan Nano Banana 2.1" else "Buat Gambar AI")
                     }
@@ -309,7 +309,7 @@ fun ImageStudioDialog(
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Icon(Icons.Rounded.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Sharp.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(Modifier.width(6.dp))
                                 Text("Simpan / Bagikan")
                             }
@@ -380,7 +380,7 @@ fun KafkaCyberGameDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.SportsEsports,
+                            imageVector = Icons.Sharp.SportsEsports,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.secondary
                         )
@@ -394,7 +394,7 @@ fun KafkaCyberGameDialog(
                         }
                     }
                     IconButton(onClick = onDismiss, modifier = Modifier.size(48.dp)) {
-                        Icon(Icons.Rounded.Close, contentDescription = "Tutup game")
+                        Icon(Icons.Sharp.Close, contentDescription = "Tutup game")
                     }
                 }
 
@@ -412,7 +412,7 @@ fun KafkaCyberGameDialog(
                         },
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Icon(Icons.Rounded.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Sharp.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(4.dp))
                         Text("Ulang")
                     }
@@ -484,7 +484,7 @@ fun KafkaCyberGameDialog(
                         modifier = Modifier.size(52.dp)
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Rounded.ArrowUpward, contentDescription = "Geser atas")
+                            Icon(Icons.Sharp.ArrowUpward, contentDescription = "Geser atas")
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -495,7 +495,7 @@ fun KafkaCyberGameDialog(
                             modifier = Modifier.size(52.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Geser kiri")
+                                Icon(Icons.AutoMirrored.Sharp.ArrowBack, contentDescription = "Geser kiri")
                             }
                         }
                         Surface(
@@ -505,7 +505,7 @@ fun KafkaCyberGameDialog(
                             modifier = Modifier.size(52.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Rounded.ArrowDownward, contentDescription = "Geser bawah")
+                                Icon(Icons.Sharp.ArrowDownward, contentDescription = "Geser bawah")
                             }
                         }
                         Surface(
@@ -515,7 +515,7 @@ fun KafkaCyberGameDialog(
                             modifier = Modifier.size(52.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = "Geser kanan")
+                                Icon(Icons.AutoMirrored.Sharp.ArrowForward, contentDescription = "Geser kanan")
                             }
                         }
                     }
