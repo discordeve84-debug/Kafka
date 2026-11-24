@@ -203,8 +203,8 @@ fun AnimeSparkleParticles(
         motes.forEachIndexed { i, (rx, ry, color) ->
             val shift = (phase + i * 0.13f) % 1f
             val yPos = ((ry - shift * 0.45f + 1f) % 1f) * size.height
-            val xPos = (rx + kotlin.math.sin((shift * Math.PI * 2 + i).toDouble()).toFloat() * 0.025f) * size.width
-            val alpha = (kotlin.math.sin((shift * Math.PI).toDouble()).toFloat() * 0.75f).coerceIn(0f, 0.8f)
+            val xPos = (rx + kotlin.math.sin(shift * Math.PI * 2 + i).toFloat() * 0.025f) * size.width
+            val alpha = (kotlin.math.sin(shift * Math.PI).toFloat() * 0.75f).coerceIn(0f, 0.8f)
             val radius = (2.2f + (i % 3) * 1.1f).dp.toPx()
 
             drawCircle(

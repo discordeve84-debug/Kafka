@@ -22,11 +22,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.FactCheck
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Description
-import androidx.compose.material.icons.rounded.FactCheck
-import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.Search
@@ -273,7 +273,7 @@ fun ResearchVerifyScreen(
                             Spacer(Modifier.width(10.dp))
                             Text("Mengaudit terhadap Web & Jurnal...")
                         } else {
-                            Icon(Icons.Rounded.FactCheck, contentDescription = null)
+                            Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null)
                             Spacer(Modifier.width(8.dp))
                             Text("Verifikasi Isi & Klaim Sekarang")
                         }
@@ -411,12 +411,12 @@ private fun WebResultCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(onClick = onOpen, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Buka Web")
                 }
                 OutlinedButton(onClick = onVerify, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Verifikasi")
                 }
@@ -619,13 +619,13 @@ private fun JournalPaperCard(
                 }
                 if (onOpenPdf != null) {
                     OutlinedButton(onClick = onOpenPdf, shape = RoundedCornerShape(10.dp)) {
-                        Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                         Spacer(Modifier.width(5.dp))
                         Text("Buka PDF")
                     }
                 }
                 OutlinedButton(onClick = onOpen, shape = RoundedCornerShape(10.dp)) {
-                    Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(5.dp))
                     Text("Buka Jurnal")
                 }

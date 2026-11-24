@@ -289,22 +289,22 @@ class KafkaFirestoreRepository(
             val col = db.collection("users").document(uid).collection("skills")
             val ref = if (!customDocId.isNullOrBlank()) col.document(customDocId) else col.document()
             path = ref.path
-            val payload = mapOf(
-                "userId" to uid,
-                "name" to skill.name.trim().take(100).ifBlank { "Skill Kustom" },
-                "slug" to skill.slug.trim().take(80).ifBlank { "custom-skill" },
-                "description" to skill.description.trim().take(1000).ifBlank { "Skill agen Kafka" },
-                "category" to SkillCategory.fromRaw(skill.category).name,
-                "sourceType" to SkillSourceType.fromRaw(skill.sourceType).name,
-                "githubRepo" to skill.githubRepo?.trim()?.take(200)?.takeIf { it.isNotBlank() },
-                "githubUrl" to skill.githubUrl?.trim()?.take(500)?.takeIf { it.isNotBlank() },
-                "systemPrompt" to skill.systemPrompt.trim().take(8000).ifBlank { "Jalankan tugas secara akurat." },
-                "outputFormat" to OutputFormat.fromRaw(skill.outputFormat).name,
-                "enabled" to skill.enabled,
-                "usageCount" to skill.usageCount.coerceIn(0L, 100000L),
-                "createdAt" to FieldValue.serverTimestamp(),
-                "updatedAt" to FieldValue.serverTimestamp(),
-            ).filterValues { it != null } as Map<String, Any>
+            val payload = buildMap<String, Any> {
+                put("userId", uid)
+                put("name", skill.name.trim().take(100).ifBlank { "Skill Kustom" })
+                put("slug", skill.slug.trim().take(80).ifBlank { "custom-skill" })
+                put("description", skill.description.trim().take(1000).ifBlank { "Skill agen Kafka" })
+                put("category", SkillCategory.fromRaw(skill.category).name)
+                put("sourceType", SkillSourceType.fromRaw(skill.sourceType).name)
+                skill.githubRepo?.trim()?.take(200)?.takeIf { it.isNotBlank() }?.let { put("githubRepo", it) }
+                skill.githubUrl?.trim()?.take(500)?.takeIf { it.isNotBlank() }?.let { put("githubUrl", it) }
+                put("systemPrompt", skill.systemPrompt.trim().take(8000).ifBlank { "Jalankan tugas secara akurat." })
+                put("outputFormat", OutputFormat.fromRaw(skill.outputFormat).name)
+                put("enabled", skill.enabled)
+                put("usageCount", skill.usageCount.coerceIn(0L, 100000L))
+                put("createdAt", FieldValue.serverTimestamp())
+                put("updatedAt", FieldValue.serverTimestamp())
+            }
             ref.set(payload).await()
             Result.success(ref.id)
         } catch (e: CancellationException) {

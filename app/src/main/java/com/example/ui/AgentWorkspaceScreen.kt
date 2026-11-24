@@ -38,7 +38,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.automirrored.rounded.TrendingUp
+import androidx.compose.material.icons.automirrored.rounded.VolumeOff
+import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.BookmarkAdd
@@ -55,15 +59,11 @@ import androidx.compose.material.icons.rounded.GraphicEq
 import androidx.compose.material.icons.rounded.Hub
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.Mic
-import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.rounded.Slideshow
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material.icons.rounded.Terminal
-import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.VerifiedUser
-import androidx.compose.material.icons.rounded.VolumeOff
-import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -270,9 +270,9 @@ fun AgentWorkspaceScreen(
                             ) {
                                 Icon(
                                     imageVector = if (autoSpeakEnabled || isSpeaking) {
-                                        Icons.Rounded.VolumeUp
+                                        Icons.AutoMirrored.Rounded.VolumeUp
                                     } else {
-                                        Icons.Rounded.VolumeOff
+                                        Icons.AutoMirrored.Rounded.VolumeOff
                                     },
                                     contentDescription = "Mode percakapan suara (TTS)",
                                     tint = if (autoSpeakEnabled || isSpeaking) {
@@ -474,7 +474,7 @@ fun AgentWorkspaceScreen(
                                                 horizontalArrangement = Arrangement.spacedBy(10.dp)
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Rounded.TrendingUp,
+                                                    imageVector = Icons.AutoMirrored.Rounded.TrendingUp,
                                                     contentDescription = null,
                                                     tint = MaterialTheme.colorScheme.secondary,
                                                     modifier = Modifier.size(16.dp)
@@ -1300,7 +1300,7 @@ private fun AgentResponseCard(
                     testTag = "verify_again_pill"
                 )
                 QuickExportPill(
-                    icon = if (isSpeaking) Icons.Rounded.VolumeOff else Icons.Rounded.VolumeUp,
+                    icon = if (isSpeaking) Icons.AutoMirrored.Rounded.VolumeOff else Icons.AutoMirrored.Rounded.VolumeUp,
                     label = if (isSpeaking) "Hentikan Suara" else "Bacakan",
                     onClick = onSpeak,
                     testTag = "speak_response_pill"
@@ -1546,7 +1546,7 @@ private fun CitationDetailBottomSheetContent(
                         .weight(1.2f)
                         .height(48.dp)
                 ) {
-                    Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
+                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(17.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Buka Sumber")
                 }
@@ -1605,7 +1605,7 @@ private fun CitationChipCard(
                     color = if (citation.verified) KafkaVerifiedGreen else MaterialTheme.colorScheme.tertiary
                 )
                 Icon(
-                    imageVector = Icons.Rounded.OpenInNew,
+                    imageVector = Icons.AutoMirrored.Rounded.OpenInNew,
                     contentDescription = null,
                     modifier = Modifier.size(13.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant

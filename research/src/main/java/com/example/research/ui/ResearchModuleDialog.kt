@@ -20,10 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.FactCheck
+import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.FactCheck
-import androidx.compose.material.icons.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Public
 import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.Search
@@ -261,7 +261,7 @@ fun ResearchModuleDialog(
                                                 onClick = { runCatching { uriHandler.openUri(item.url) } },
                                                 shape = RoundedCornerShape(10.dp)
                                             ) {
-                                                Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                                                 Spacer(Modifier.width(5.dp))
                                                 Text("Buka Web")
                                             }
@@ -272,7 +272,7 @@ fun ResearchModuleDialog(
                                                 },
                                                 shape = RoundedCornerShape(10.dp)
                                             ) {
-                                                Icon(Icons.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
                                                 Spacer(Modifier.width(5.dp))
                                                 Text("Verifikasi")
                                             }
@@ -414,7 +414,7 @@ fun ResearchModuleDialog(
                                                     onClick = { runCatching { uriHandler.openUri(pdf) } },
                                                     shape = RoundedCornerShape(10.dp)
                                                 ) {
-                                                    Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                                                     Spacer(Modifier.width(5.dp))
                                                     Text("Buka PDF")
                                                 }
@@ -426,7 +426,7 @@ fun ResearchModuleDialog(
                                                 },
                                                 shape = RoundedCornerShape(10.dp)
                                             ) {
-                                                Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                                                Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                                                 Spacer(Modifier.width(5.dp))
                                                 Text("Buka Jurnal")
                                             }
@@ -464,7 +464,7 @@ fun ResearchModuleDialog(
                                 Spacer(Modifier.width(8.dp))
                                 Text("Memverifikasi Lintas Web & Jurnal...")
                             } else {
-                                Icon(Icons.Rounded.FactCheck, contentDescription = null)
+                                Icon(Icons.AutoMirrored.Rounded.FactCheck, contentDescription = null)
                                 Spacer(Modifier.width(8.dp))
                                 Text("Jalankan Verifikasi Multi-Sumber")
                             }

@@ -1,8 +1,10 @@
 package com.example.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.content.edit
 import com.example.BuildConfig
 import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
@@ -15,6 +17,7 @@ private const val DEBUG_STORE_PREFIX = "com.google.firebase.appcheck.debug.store
 private const val DEBUG_SECRET_KEY = "com.google.firebase.appcheck.debug.DEBUG_SECRET"
 private const val RECAPTCHA_SITE_KEY_RES = "recaptcha_site_key"
 
+@SuppressLint("DiscouragedApi")
 fun configureAppCheck(context: Context, intent: Intent?) {
     try {
         if (FirebaseApp.getApps(context).isEmpty()) {
@@ -29,9 +32,9 @@ fun configureAppCheck(context: Context, intent: Intent?) {
                     "$DEBUG_STORE_PREFIX$persistenceKey",
                     Context.MODE_PRIVATE
                 )
-                prefs.edit()
-                    .putString(DEBUG_SECRET_KEY, debugToken)
-                    .commit()
+                prefs.edit {
+                    putString(DEBUG_SECRET_KEY, debugToken)
+                }
                 Log.d(TAG, "App Check debug secret configured successfully.")
             } else {
                 Log.w(TAG, "No debug token found in Intent extra.")
