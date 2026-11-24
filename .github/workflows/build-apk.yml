@@ -16,7 +16,7 @@ on:
 
 jobs:
   build-apk:
-    name: Build Kafka APK v1.1
+    name: Build Kafka APK v1.2
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -181,22 +181,22 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload Debug APK ke GitHub Releases (v1.1)
+      - name: Upload Debug APK ke GitHub Releases (v1.2)
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build_type == 'debug') }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.${{ github.run_number }}
-          name: Kafka Debug APK v1.1.${{ github.run_number }}
+          tag_name: v1.2.${{ github.run_number }}
+          name: Kafka Debug APK v1.2.${{ github.run_number }}
           files: app/build/outputs/apk/debug/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release APK ke GitHub Releases (v1.1)
+      - name: Upload Release APK ke GitHub Releases (v1.2)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.1.${{ github.run_number }}
-          name: Kafka Release APK v1.1.${{ github.run_number }}
+          tag_name: v1.2.${{ github.run_number }}
+          name: Kafka Release APK v1.2.${{ github.run_number }}
           files: app/build/outputs/apk/release/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

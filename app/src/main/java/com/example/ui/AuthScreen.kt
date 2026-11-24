@@ -1,5 +1,7 @@
 package com.example.ui
 
+import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.animation.core.EaseInOutSine
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -86,6 +88,7 @@ fun AuthScreen(
 ) {
     val context = LocalContext.current
     val credentialManager = remember(context) { CredentialManager.create(context) }
+    val heroDrawableRes = remember(context) { resolveSeductiveHeroDrawable(context) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
@@ -141,7 +144,7 @@ fun AuthScreen(
 
             // Seductive leaning pose on the right, never overlapped by hero text
             Image(
-                painter = painterResource(id = R.drawable.img_kafka_seductive_hero),
+                painter = painterResource(id = heroDrawableRes),
                 contentDescription = stringResource(R.string.cd_anime_mascot),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.TopCenter,
@@ -476,3 +479,14 @@ private fun CapabilityPill(icon: ImageVector, label: String) {
         }
     }
 }
+
+@SuppressLint("DiscouragedApi")
+private fun resolveSeductiveHeroDrawable(context: Context): Int {
+    val dynamicId = context.resources.getIdentifier(
+        "img_kafka_seductive_hero",
+        "drawable",
+        context.packageName
+    )
+    return if (dynamicId != 0) dynamicId else R.drawable.img_kafka_anime_icon
+}
+
