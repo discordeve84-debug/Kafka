@@ -16,8 +16,10 @@ on:
 
 jobs:
   build-apk:
-    name: Build Kafka APK
+    name: Build Kafka APK v1.1
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -89,6 +91,7 @@ jobs:
 
       - name: Prepare debug keystore & env
         env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
           GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
         shell: bash
         run: |
@@ -107,8 +110,14 @@ jobs:
                 -dname "CN=Android Debug,O=Android,C=US"
             fi
           fi
-          if [ ! -f app/google-services.json ] && [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
-            echo "$GOOGLE_SERVICES_JSON_BASE64" | tr -d '[:space:]' | base64 -d > app/google-services.json
+          GS_SECRET="${GOOGLE_SERVICES_JSON:-$GOOGLE_SERVICES_JSON_BASE64}"
+          if [ ! -f app/google-services.json ] && [ -n "$GS_SECRET" ]; then
+            TRIMMED_GS="$(printf '%s' "$GS_SECRET" | sed -e 's/^[[:space:]]*//')"
+            if [[ "$TRIMMED_GS" == \{* ]]; then
+              printf '%s\n' "$GS_SECRET" > app/google-services.json
+            else
+              printf '%s' "$GS_SECRET" | tr -d '[:space:]' | base64 -d > app/google-services.json
+            fi
           fi
           touch .env
           ls -lh debug.keystore .env
@@ -171,3 +180,23 @@ jobs:
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: error
           retention-days: 30
+
+      - name: Upload Debug APK ke GitHub Releases (v1.1)
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.build_type == 'debug') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.1.${{ github.run_number }}
+          name: Kafka Debug APK v1.1.${{ github.run_number }}
+          files: app/build/outputs/apk/debug/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Release APK ke GitHub Releases (v1.1)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.1.${{ github.run_number }}
+          name: Kafka Release APK v1.1.${{ github.run_number }}
+          files: app/build/outputs/apk/release/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -285,11 +285,14 @@ fun SkillHubScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         listOf(
-                            "hermes agent skills",
-                            "mcp server tools",
-                            "academic research agent",
-                            "document docx pdf generator",
-                            "fact check agent"
+                            "papers-we-love research papers",
+                            "awesome llm papers arxiv pdf",
+                            "msitarzewski/agency-agents",
+                            "GuillemRoca/agent-skills-android",
+                            "ourresearch/openalex-api",
+                            "modelcontextprotocol/servers",
+                            "android/ai-samples",
+                            "firebase/quickstart-android"
                         ).forEach { preset ->
                             AssistChip(
                                 onClick = { viewModel.searchGitHubSkills(preset) },

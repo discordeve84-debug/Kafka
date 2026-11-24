@@ -389,6 +389,16 @@ fun HomeScreen(
                             testTag = "home_card_studio"
                         )
                     }
+
+                    HomeFeatureCard(
+                        title = "Verifikasi Klaim, Jurnal & Tautan",
+                        subtitle = "Cek keabsahan isi, DOI, & status HTTP web secara real-time",
+                        icon = Icons.Rounded.VerifiedUser,
+                        accentColor = KafkaVerifiedGreen,
+                        onClick = { onOpenResearch(2) },
+                        modifier = Modifier.fillMaxWidth(),
+                        testTag = "home_card_verify"
+                    )
                 }
             }
 

@@ -19,17 +19,7 @@ enum class AgentMode(val label: String, val badge: String) {
     }
 }
 
-enum class VerificationStatus(val label: String) {
-    VERIFIED("Terverifikasi"),
-    PARTIAL("Sebagian Terbukti"),
-    UNVERIFIED("Belum Terbukti"),
-    NONE("Tanpa Klaim");
-
-    companion object {
-        fun fromRaw(raw: String): VerificationStatus =
-            entries.firstOrNull { it.name == raw } ?: NONE
-    }
-}
+typealias VerificationStatus = com.example.research.VerificationStatus
 
 enum class SkillCategory(val label: String) {
     DOCUMENT("Dokumen"),
@@ -174,58 +164,13 @@ data class GeneratedArtifact(
     @ServerTimestamp val updatedAt: Timestamp? = null,
 )
 
-// Live Network & Verification Domain Models
+// Live Network & Verification Domain Models (provided by :research module)
 
-data class WebSearchResult(
-    val title: String,
-    val url: String,
-    val domain: String,
-    val snippet: String,
-    val sourceEngine: String,
-    val reachable: Boolean = true,
-)
-
-data class JournalPaper(
-    val title: String,
-    val authors: List<String>,
-    val year: Int,
-    val venue: String,
-    val doi: String?,
-    val url: String,
-    val abstractText: String,
-    val citedByCount: Int,
-    val sourceProvider: String,
-    val isPeerReviewed: Boolean = true,
-)
-
-data class GitHubSkillRepo(
-    val fullName: String,
-    val name: String,
-    val description: String,
-    val htmlUrl: String,
-    val defaultBranch: String,
-    val stars: Int,
-    val language: String,
-    val topics: List<String>,
-    val ownerAvatarUrl: String,
-)
-
-data class ClaimCheck(
-    val claim: String,
-    val verdict: String,
-    val explanation: String,
-    val evidenceSource: String,
-    val evidenceUrl: String,
-)
-
-data class VerificationReport(
-    val overallScore: Int,
-    val status: VerificationStatus,
-    val summary: String,
-    val claims: List<ClaimCheck>,
-    val sourcesChecked: Int,
-    val verifiedLinks: Int,
-)
+typealias WebSearchResult = com.example.research.WebSearchResult
+typealias JournalPaper = com.example.research.JournalPaper
+typealias GitHubSkillRepo = com.example.research.GitHubSkillRepo
+typealias ClaimCheck = com.example.research.ClaimCheck
+typealias VerificationReport = com.example.research.VerificationReport
 
 data class DocumentSection(
     val heading: String,
@@ -257,15 +202,7 @@ data class UserProfile(
     @ServerTimestamp val updatedAt: Timestamp? = null,
 )
 
-data class JournalSummaryVerification(
-    val keyFindings: String,
-    val methodology: String,
-    val limitations: String,
-    val accuracyScore: Int,
-    val accuracyStatus: VerificationStatus,
-    val accuracyNotes: String,
-    val crossCheckedSources: Int,
-)
+typealias JournalSummaryVerification = com.example.research.JournalSummaryVerification
 
 data class DocumentPreviewDraft(
     val blueprint: DocumentBlueprint,

@@ -835,6 +835,66 @@ class KafkaFirestoreRepository(
                     outputFormat = OutputFormat.CSV.name,
                     enabled = false
                 ),
+                "builtin_agency_researcher" to AgentSkill(
+                    name = "Agency Persona: Research & Fact Auditor",
+                    slug = "agency-research-auditor",
+                    description = "Adaptasi persona spesialis dari msitarzewski/agency-agents untuk riset mendalam, audit DOI, dan QA verifikasi.",
+                    category = SkillCategory.VERIFICATION.name,
+                    sourceType = SkillSourceType.GITHUB.name,
+                    githubRepo = "msitarzewski/agency-agents",
+                    githubUrl = "https://github.com/msitarzewski/agency-agents",
+                    systemPrompt = "Bertindak sebagai Senior Research & QA Auditor: pisahkan klaim berbasis peer-review (OpenAlex/DOAJ/Europe PMC) dari preprint (arXiv), periksa validitas tautan, dan nyatakan batasan bukti secara transparan.",
+                    outputFormat = OutputFormat.RESEARCH.name,
+                    enabled = true
+                ),
+                "builtin_agency_android" to AgentSkill(
+                    name = "Agency Persona: Android Kotlin Architect",
+                    slug = "agency-android-architect",
+                    description = "Skill engineering Kotlin/Jetpack Compose dari GuillemRoca/agent-skills-android, nowinandroid & compose-samples.",
+                    category = SkillCategory.GITHUB.name,
+                    sourceType = SkillSourceType.GITHUB.name,
+                    githubRepo = "GuillemRoca/agent-skills-android",
+                    githubUrl = "https://github.com/GuillemRoca/agent-skills-android",
+                    systemPrompt = "Gunakan praktik terbaik arsitektur Android modern (Kotlin Coroutines, Flow, Jetpack Compose Material 3, MVVM, Clean Architecture, dan testing Robolectric/Maestro).",
+                    outputFormat = OutputFormat.MARKDOWN.name,
+                    enabled = false
+                ),
+                "builtin_github_papers" to AgentSkill(
+                    name = "GitHub Open-Access Journal & Paper Hunter",
+                    slug = "github-journal-hunter",
+                    description = "Menjelajahi koleksi jurnal/paper open-access dari GitHub (papers-we-love, awesome-papers), DOAJ, Europe PMC, OpenAlex & arXiv PDF.",
+                    category = SkillCategory.RESEARCH.name,
+                    sourceType = SkillSourceType.GITHUB.name,
+                    githubRepo = "papers-we-love/papers-we-love",
+                    githubUrl = "https://github.com/papers-we-love/papers-we-love",
+                    systemPrompt = "Prioritaskan paper dan jurnal yang memiliki tautan open-access atau PDF langsung (arXiv, Europe PMC, DOAJ, OpenAlex OA, atau repositori GitHub curated papers) sehingga pengguna dapat langsung membuka naskahnya.",
+                    outputFormat = OutputFormat.RESEARCH.name,
+                    enabled = true
+                ),
+                "builtin_mcp_bridge" to AgentSkill(
+                    name = "MCP Fetch & Memory Orchestrator",
+                    slug = "mcp-fetch-orchestrator",
+                    description = "Pola orkestrasi Fetch, Memory & Git workflow terinspirasi modelcontextprotocol/servers untuk riset multi-langkah.",
+                    category = SkillCategory.GITHUB.name,
+                    sourceType = SkillSourceType.GITHUB.name,
+                    githubRepo = "modelcontextprotocol/servers",
+                    githubUrl = "https://github.com/modelcontextprotocol/servers",
+                    systemPrompt = "Jalankan alur tool terstruktur: Fetch sumber web langsung -> Verifikasi HTTP & DOI -> Simpan ringkasan terindeks ke memori sesi/Research Library.",
+                    outputFormat = OutputFormat.RESEARCH.name,
+                    enabled = false
+                ),
+                "builtin_firebase_ai_pack" to AgentSkill(
+                    name = "Firebase & Gemini Android Samples",
+                    slug = "firebase-gemini-samples",
+                    description = "Referensi pola integrasi resmi firebase/quickstart-android, android/ai-samples, dan google/skills.",
+                    category = SkillCategory.GITHUB.name,
+                    sourceType = SkillSourceType.GITHUB.name,
+                    githubRepo = "android/ai-samples",
+                    githubUrl = "https://github.com/android/ai-samples",
+                    systemPrompt = "Terapkan pola resmi Firebase AI Logic, App Check, Firestore security rules, dan multimodal Gemini Android samples.",
+                    outputFormat = OutputFormat.MARKDOWN.name,
+                    enabled = false
+                ),
             )
 
             defaults.forEach { (id, skill) ->

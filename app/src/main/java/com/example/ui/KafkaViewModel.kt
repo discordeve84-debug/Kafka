@@ -600,7 +600,7 @@ class KafkaViewModel(
                 journalError = null
             )
             try {
-                val papers = researchClient.searchAcademicJournals(q, limit = 14)
+                val papers = researchClient.searchAcademicJournals(q, limit = 16)
                 _researchState.value = _researchState.value.copy(
                     isSearchingJournals = false,
                     journalResults = papers,
@@ -617,6 +617,32 @@ class KafkaViewModel(
         }
     }
 
+    fun runGitHubJournalSearch(query: String = _researchState.value.journalQuery) {
+        val q = query.trim().ifBlank { "papers-we-love machine learning arxiv" }
+        viewModelScope.launch {
+            _researchState.value = _researchState.value.copy(
+                journalQuery = q,
+                isSearchingJournals = true,
+                journalError = null
+            )
+            try {
+                val papers = researchClient.searchGitHubJournalCollections(q, limit = 14)
+                _researchState.value = _researchState.value.copy(
+                    isSearchingJournals = false,
+                    journalResults = papers,
+                    journalError = if (papers.isEmpty()) "Tidak ada repo jurnal GitHub ditemukan." else null
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _researchState.value = _researchState.value.copy(
+                    isSearchingJournals = false,
+                    journalError = e.localizedMessage ?: "Pencarian repo jurnal GitHub gagal."
+                )
+            }
+        }
+    }
+
     fun summarizeAndVerifyJournal(paper: JournalPaper) {
         val key = paper.url.ifBlank { paper.title }
         if (_researchState.value.summarizingPaperUrl == key) return
@@ -626,23 +652,44 @@ class KafkaViewModel(
                 journalError = null
             )
             try {
-                val crossWeb = researchClient.searchLiveWeb(paper.title.take(100), limit = 4)
-                val summary = aiEngine.summarizeAndVerifyJournal(
-                    paper = paper,
-                    crossSources = crossWeb,
-                    relatedPapers = _researchState.value.journalResults
-                )
+                val targetLink = paper.pdfUrl?.takeIf { it.startsWith("http") } ?: paper.url
+                val (crossWeb, isLinkReachable) = coroutineScope {
+                    val webDeferred = async { researchClient.searchLiveWeb(paper.title.take(100), limit = 5) }
+                    val reachDeferred = async { researchClient.verifyUrlReachable(targetLink) }
+                    webDeferred.await() to reachDeferred.await()
+                }
+                val summary = try {
+                    aiEngine.summarizeAndVerifyJournal(
+                        paper = paper,
+                        crossSources = crossWeb,
+                        relatedPapers = _researchState.value.journalResults
+                    )
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "AI journal summary fallback to :research verifier: ${e.message}")
+                    researchClient.verifyJournalQuick(
+                        paper = paper,
+                        crossSources = crossWeb,
+                        relatedPapers = _researchState.value.journalResults
+                    )
+                }
+                val linkNote = if (isLinkReachable) {
+                    "Tautan jurnal/PDF aktif (HTTP OK)."
+                } else {
+                    "Tautan utama perlu verifikasi manual di browser."
+                }
+                val enrichedSummary = if (summary.accuracyNotes.contains("Tautan ")) {
+                    summary
+                } else {
+                    summary.copy(accuracyNotes = "$linkNote ${summary.accuracyNotes}".trim())
+                }
                 val updatedMap = _researchState.value.journalSummaries.toMutableMap().apply {
-                    put(key, summary)
+                    put(key, enrichedSummary)
                 }
                 _researchState.value = _researchState.value.copy(
                     summarizingPaperUrl = null,
                     journalSummaries = updatedMap
-                )
-            } catch (e: TimeoutCancellationException) {
-                _researchState.value = _researchState.value.copy(
-                    summarizingPaperUrl = null,
-                    journalError = "Ringkasan AI melebihi batas waktu."
                 )
             } catch (e: CancellationException) {
                 throw e
@@ -680,22 +727,28 @@ class KafkaViewModel(
                     web.take(4).map { async { researchClient.verifyUrlReachable(it.url) } }
                         .count { it.await() }
                 }
-                val report = aiEngine.verifyContent(
-                    contentToVerify = input,
-                    webResults = web,
-                    journals = journals,
-                    reachableUrlsCount = reachableCount
-                )
+                val report = try {
+                    aiEngine.verifyContent(
+                        contentToVerify = input,
+                        webResults = web,
+                        journals = journals,
+                        reachableUrlsCount = reachableCount
+                    )
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.w(TAG, "AI verification fallback to :research multi-source engine: ${e.message}")
+                    researchClient.verifyContentMultiSource(
+                        contentToVerify = input,
+                        preloadedWebResults = web,
+                        preloadedJournals = journals
+                    )
+                }
                 _researchState.value = _researchState.value.copy(
                     isVerifying = false,
                     verificationReport = report,
                     webResults = if (_researchState.value.webResults.isEmpty()) web else _researchState.value.webResults,
                     journalResults = if (_researchState.value.journalResults.isEmpty()) journals else _researchState.value.journalResults,
-                )
-            } catch (e: TimeoutCancellationException) {
-                _researchState.value = _researchState.value.copy(
-                    isVerifying = false,
-                    verifyError = "Verifikasi melebihi batas waktu 60 detik."
                 )
             } catch (e: CancellationException) {
                 throw e

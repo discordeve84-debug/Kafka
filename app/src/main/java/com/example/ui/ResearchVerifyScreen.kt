@@ -77,7 +77,7 @@ fun ResearchVerifyScreen(
     onNavigateToDocStudio: () -> Unit,
 ) {
     val state by viewModel.researchState.collectAsStateWithLifecycle()
-    var subTab by rememberSaveable { mutableIntStateOf(initialTab) }
+    var subTab by rememberSaveable(initialTab) { mutableIntStateOf(initialTab) }
     val uriHandler = LocalUriHandler.current
 
     Box(
@@ -140,6 +140,10 @@ fun ResearchVerifyScreen(
                             WebResultCard(
                                 item = item,
                                 onOpen = { runCatching { uriHandler.openUri(item.url) } },
+                                onVerify = {
+                                    subTab = 2
+                                    viewModel.runContentVerification("${item.title}. ${item.snippet} (${item.url})")
+                                },
                                 onAskKafka = {
                                     onAskAgent(
                                         "Analisis dan verifikasi sumber web ini: ${item.title} (${item.url}) — ${item.snippet}",
@@ -152,16 +156,37 @@ fun ResearchVerifyScreen(
                 }
 
                 1 -> {
-                    // ACADEMIC JOURNAL SEARCH
+                    // ACADEMIC JOURNAL & GITHUB OPEN-PAPER SEARCH
                     SearchBarRow(
                         value = state.journalQuery,
                         onValueChange = viewModel::updateJournalQuery,
-                        placeholder = "Cari jurnal ilmiah, DOI, atau topik riset (OpenAlex/arXiv)...",
+                        placeholder = "Cari jurnal, DOI, arXiv PDF, atau koleksi GitHub...",
                         isLoading = state.isSearchingJournals,
                         testTag = "journal_search_input",
                         buttonTag = "journal_search_button",
                         onSearch = { viewModel.runJournalSearch() }
                     )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        androidx.compose.material3.AssistChip(
+                            onClick = { viewModel.runGitHubJournalSearch(state.journalQuery.ifBlank { "papers-we-love awesome-papers" }) },
+                            label = { Text("Repo GitHub Banyak Jurnal") },
+                            modifier = Modifier.testTag("github_papers_chip")
+                        )
+                        androidx.compose.material3.AssistChip(
+                            onClick = { viewModel.runJournalSearch(state.journalQuery.ifBlank { "artificial intelligence agent" }) },
+                            label = { Text("OpenAlex + DOAJ + arXiv") }
+                        )
+                        androidx.compose.material3.AssistChip(
+                            onClick = { viewModel.runGitHubJournalSearch("awesome-llm-papers arxiv") },
+                            label = { Text("GitHub LLM & AI Papers") }
+                        )
+                    }
 
                     if (state.journalError != null) {
                         ErrorBanner(state.journalError.orEmpty())
@@ -176,8 +201,8 @@ fun ResearchVerifyScreen(
                             item {
                                 EmptyWorkbenchCard(
                                     icon = Icons.Rounded.School,
-                                    title = "Pencarian Jurnal Akademik",
-                                    subtitle = "Mengambil literatur peer-reviewed & preprint langsung dari OpenAlex, Crossref DOI, dan arXiv."
+                                    title = "Jurnal Terbuka & Koleksi GitHub",
+                                    subtitle = "Menarik paper open-access langsung dari OpenAlex, Europe PMC, DOAJ, arXiv, Crossref DOI, dan repositori GitHub berisi paper yang bisa langsung dibuka."
                                 )
                             }
                         }
@@ -188,7 +213,13 @@ fun ResearchVerifyScreen(
                                 aiSummary = state.journalSummaries[paperKey],
                                 isSummarizing = state.summarizingPaperUrl == paperKey,
                                 onSummarizeAndVerify = { viewModel.summarizeAndVerifyJournal(paper) },
-                                onOpen = { runCatching { uriHandler.openUri(paper.url) } },
+                                onOpen = {
+                                    val target = paper.url.ifBlank { paper.pdfUrl.orEmpty() }
+                                    if (target.startsWith("http")) runCatching { uriHandler.openUri(target) }
+                                },
+                                onOpenPdf = paper.pdfUrl?.takeIf { it.startsWith("http") }?.let { pdfLink ->
+                                    { runCatching { uriHandler.openUri(pdfLink) } }
+                                },
                                 onAskKafka = {
                                     onAskAgent(
                                         "Bedah metodologi, temuan utama, dan keabsahan jurnal ini: ${paper.title} (${paper.venue}, ${paper.year}). Abstrak: ${paper.abstractText}",
@@ -197,7 +228,7 @@ fun ResearchVerifyScreen(
                                 },
                                 onExportDocx = {
                                     viewModel.generateDocument(
-                                        topicOrContent = "Review Jurnal Ilmiah: ${paper.title}\nPenulis: ${paper.authors.joinToString()}\nPenerbit: ${paper.venue} (${paper.year})\nDOI: ${paper.doi ?: "-"}\n\nAbstrak:\n${paper.abstractText}",
+                                        topicOrContent = "Review Jurnal Ilmiah: ${paper.title}\nPenulis: ${paper.authors.joinToString()}\nPenerbit: ${paper.venue} (${paper.year})\nDOI: ${paper.doi ?: "-"}\nURL: ${paper.url}\n\nAbstrak:\n${paper.abstractText}",
                                         format = OutputFormat.DOCX,
                                         verifyBeforeExport = false
                                     ) {
@@ -338,6 +369,7 @@ private fun SearchBarRow(
 private fun WebResultCard(
     item: WebSearchResult,
     onOpen: () -> Unit,
+    onVerify: () -> Unit,
     onAskKafka: () -> Unit
 ) {
     Surface(
@@ -372,11 +404,21 @@ private fun WebResultCard(
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 OutlinedButton(onClick = onOpen, shape = RoundedCornerShape(10.dp)) {
                     Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Buka Web")
+                }
+                OutlinedButton(onClick = onVerify, shape = RoundedCornerShape(10.dp)) {
+                    Icon(Icons.Rounded.FactCheck, contentDescription = null, modifier = Modifier.size(15.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text("Verifikasi")
                 }
                 Button(onClick = onAskKafka, shape = RoundedCornerShape(10.dp)) {
                     Icon(Icons.Rounded.AutoAwesome, contentDescription = null, modifier = Modifier.size(15.dp))
@@ -395,6 +437,7 @@ private fun JournalPaperCard(
     isSummarizing: Boolean,
     onSummarizeAndVerify: () -> Unit,
     onOpen: () -> Unit,
+    onOpenPdf: (() -> Unit)?,
     onAskKafka: () -> Unit,
     onExportDocx: () -> Unit
 ) {
@@ -410,22 +453,42 @@ private fun JournalPaperCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(6.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = "${paper.sourceProvider} • ${if (paper.year > 0) paper.year else "Live"}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
+                    if (paper.isOpenAccess || onOpenPdf != null) {
+                        Surface(
+                            color = KafkaVerifiedGreen.copy(alpha = 0.16f),
+                            shape = RoundedCornerShape(6.dp)
+                        ) {
+                            Text(
+                                text = "OPEN ACCESS",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = KafkaVerifiedGreen,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                            )
+                        }
+                    }
+                }
+                if (paper.citedByCount > 0) {
                     Text(
-                        text = "${paper.sourceProvider} • ${if (paper.year > 0) paper.year else "N/A"}",
+                        text = "${paper.citedByCount} sitasi",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        color = MaterialTheme.colorScheme.secondary
                     )
                 }
-                Text(
-                    text = "${paper.citedByCount} sitasi",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.secondary
-                )
             }
             Text(text = paper.title, style = MaterialTheme.typography.titleMedium)
             if (paper.authors.isNotEmpty()) {
@@ -554,10 +617,17 @@ private fun JournalPaperCard(
                         Text(if (aiSummary == null) "Ringkas & Verifikasi" else "Audit Ulang")
                     }
                 }
+                if (onOpenPdf != null) {
+                    OutlinedButton(onClick = onOpenPdf, shape = RoundedCornerShape(10.dp)) {
+                        Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
+                        Spacer(Modifier.width(5.dp))
+                        Text("Buka PDF")
+                    }
+                }
                 OutlinedButton(onClick = onOpen, shape = RoundedCornerShape(10.dp)) {
                     Icon(Icons.Rounded.OpenInNew, contentDescription = null, modifier = Modifier.size(15.dp))
                     Spacer(Modifier.width(5.dp))
-                    Text("DOI")
+                    Text("Buka Jurnal")
                 }
                 OutlinedButton(onClick = onExportDocx, shape = RoundedCornerShape(10.dp)) {
                     Icon(Icons.Rounded.Description, contentDescription = null, modifier = Modifier.size(15.dp))

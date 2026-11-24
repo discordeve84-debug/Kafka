@@ -120,7 +120,9 @@ import com.example.model.GeneratedArtifact
 import com.example.model.OutputFormat
 import com.example.model.UserProfile
 import com.example.network.LiveResearchClient
+import com.example.research.ui.ResearchModuleDialog
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
@@ -152,17 +154,43 @@ private val KafkaTabs = listOf(
 fun AppNavigation(
     isDarkTheme: Boolean,
     onToggleTheme: (Boolean) -> Unit,
-    auth: FirebaseAuth = Firebase.auth,
+    auth: FirebaseAuth? = null,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val credentialManager = remember(context) { CredentialManager.create(context) }
 
-    val currentUser by auth.authStateFlow()
-        .collectAsStateWithLifecycle(initialValue = auth.currentUser)
+    var resolvedAuth by remember(auth) {
+        mutableStateOf(
+            auth ?: runCatching {
+                if (FirebaseApp.getApps(context).isEmpty()) {
+                    FirebaseApp.initializeApp(context)
+                }
+                if (FirebaseApp.getApps(context).isNotEmpty()) Firebase.auth else null
+            }.getOrNull()
+        )
+    }
 
-    LaunchedEffect(Unit) {
-        if (auth.currentUser == null) {
+    val activeAuth = resolvedAuth
+    if (activeAuth == null) {
+        FirebaseConfigMissingScreen(
+            onRetryInit = {
+                resolvedAuth = runCatching {
+                    if (FirebaseApp.getApps(context).isEmpty()) {
+                        FirebaseApp.initializeApp(context)
+                    }
+                    if (FirebaseApp.getApps(context).isNotEmpty()) Firebase.auth else null
+                }.getOrNull()
+            }
+        )
+        return
+    }
+
+    val currentUser by activeAuth.authStateFlow()
+        .collectAsStateWithLifecycle(initialValue = activeAuth.currentUser)
+
+    LaunchedEffect(activeAuth) {
+        if (activeAuth.currentUser == null) {
             attemptAutoSignIn(
                 context = context,
                 credentialManager = credentialManager,
@@ -187,6 +215,118 @@ fun AppNavigation(
                 }
             )
         }
+    }
+}
+
+@Composable
+private fun FirebaseConfigMissingScreen(
+    onRetryInit: () -> Unit,
+) {
+    var showCyberGame by remember { mutableStateOf(false) }
+    var showResearchModule by remember { mutableStateOf(false) }
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                AnimePulseAvatar(
+                    drawableRes = R.drawable.img_kafka_anime_icon,
+                    contentDescription = stringResource(R.string.cd_kafka_logo),
+                    isActive = false,
+                    size = 56.dp
+                )
+                Column {
+                    Text(
+                        text = "Kafka v1.1",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                    Text(
+                        text = "Konfigurasi Firebase belum terpasang",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = "Mengapa layar ini muncul?",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "APK ini dibangun tanpa file app/google-services.json di repositori GitHub, sehingga layanan Google Sign-In, Firestore, dan Firebase AI Logic belum memiliki Project ID & App ID.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "Cara mengaktifkan fitur cloud penuh pada build GitHub:\n1. Encode app/google-services.json dari AI Studio ke Base64.\n2. Simpan di GitHub Repo → Settings → Secrets and variables → Actions dengan nama GOOGLE_SERVICES_JSON_BASE64.\n3. Jalankan ulang workflow Build Android APK.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+
+            Button(
+                onClick = { showResearchModule = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .testTag("standalone_research_module_button"),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Buka Modul Live Search, Jurnal & Verifikasi")
+            }
+
+            OutlinedButton(
+                onClick = onRetryInit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .testTag("retry_firebase_init_button"),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Coba Inisialisasi Ulang Firebase")
+            }
+
+            OutlinedButton(
+                onClick = { showCyberGame = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .testTag("offline_cyber_game_button"),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Buka Mini-Game Offline (Cyber Grid 2D)")
+            }
+        }
+    }
+
+    if (showResearchModule) {
+        ResearchModuleDialog(onDismiss = { showResearchModule = false })
+    }
+
+    if (showCyberGame) {
+        KafkaCyberGameDialog(onDismiss = { showCyberGame = false })
     }
 }
 

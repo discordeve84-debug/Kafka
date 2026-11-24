@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "Kafka"
 
 include(":app")
+include(":research")
