@@ -37,6 +37,8 @@ import androidx.compose.material.icons.automirrored.sharp.ArrowForward
 import androidx.compose.material.icons.sharp.AutoAwesome
 import androidx.compose.material.icons.sharp.Code
 import androidx.compose.material.icons.sharp.Description
+import androidx.compose.material.icons.sharp.Language
+import androidx.compose.material.icons.sharp.Mail
 import androidx.compose.material.icons.sharp.Public
 import androidx.compose.material.icons.sharp.School
 import androidx.compose.material.icons.sharp.VerifiedUser
@@ -45,9 +47,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,7 +75,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.credentials.CredentialManager
 import com.example.R
+import com.example.core.WorkspaceSessionStore
+import com.example.core.checkPendingGoogleOAuthResult
 import com.example.core.onGoogleSignInClicked
+import com.example.core.onGoogleWebOAuthSignInClicked
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -91,6 +98,14 @@ fun AuthScreen(
     val heroDrawableRes = remember(context) { resolveSeductiveHeroDrawable(context) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(auth) {
+        val pending = checkPendingGoogleOAuthResult(auth)
+        if (pending?.first != null) {
+            WorkspaceSessionStore.setAccessToken(pending.second)
+            onAuthSuccess(pending.first)
+        }
+    }
 
     val allureTransition = rememberInfiniteTransition(label = "kafka_allure_hero")
     val allureSway by allureTransition.animateFloat(
@@ -120,11 +135,11 @@ fun AuthScreen(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Seductive Dark-Fantasy Asymmetrical Hero Showcase
+        // Seductive Dark-Fantasy Asymmetrical HD Hero Showcase
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(318.dp)
+                .height(336.dp)
                 .background(MaterialTheme.colorScheme.background)
         ) {
             // Subtle crimson aura mist behind Kafka portrait
@@ -134,42 +149,42 @@ fun AuthScreen(
                     .background(
                         Brush.radialGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.28f),
-                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.16f),
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.12f),
                                 Color.Transparent
                             )
                         )
                     )
             )
 
-            // Seductive leaning pose on the right, never overlapped by hero text
+            // Crisp HD seductive portrait on the right, never overlapped by hero text
             Image(
                 painter = painterResource(id = heroDrawableRes),
                 contentDescription = stringResource(R.string.cd_anime_mascot),
                 contentScale = ContentScale.Crop,
                 alignment = Alignment.TopCenter,
                 modifier = Modifier
-                    .fillMaxWidth(0.74f)
+                    .fillMaxWidth(0.76f)
                     .fillMaxHeight()
                     .align(Alignment.BottomEnd)
                     .graphicsLayer {
                         scaleX = allureScale
                         scaleY = allureScale
-                        rotationZ = allureSway * 0.45f
+                        rotationZ = allureSway * 0.40f
                     }
             )
 
-            // Horizontal feather from solid obsidian on left into clear portrait on right
+            // Horizontal feather from solid obsidian on left into crystal-clear HD portrait on right
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.horizontalGradient(
                             0.0f to MaterialTheme.colorScheme.background,
-                            0.36f to MaterialTheme.colorScheme.background.copy(alpha = 0.94f),
-                            0.58f to MaterialTheme.colorScheme.background.copy(alpha = 0.32f),
-                            0.85f to Color.Transparent,
-                            1.0f to MaterialTheme.colorScheme.background.copy(alpha = 0.25f)
+                            0.28f to MaterialTheme.colorScheme.background.copy(alpha = 0.90f),
+                            0.48f to MaterialTheme.colorScheme.background.copy(alpha = 0.26f),
+                            0.70f to Color.Transparent,
+                            1.0f to Color.Transparent
                         )
                     )
             )
@@ -322,6 +337,7 @@ fun AuthScreen(
                         CapabilityPill(Icons.Sharp.Public, "Live Web Search")
                         CapabilityPill(Icons.Sharp.School, "Jurnal & GitHub Papers")
                         CapabilityPill(Icons.Sharp.VerifiedUser, "Verifikasi Multi-Sumber")
+                        CapabilityPill(Icons.Sharp.Mail, "Gmail & Workspace")
                         CapabilityPill(Icons.Sharp.Description, "Word, PDF & PPTX")
                         CapabilityPill(Icons.Sharp.Code, "Skill Hub GitHub")
                         CapabilityPill(Icons.Sharp.AutoAwesome, "Buat Skill dari 0")
@@ -364,8 +380,11 @@ fun AuthScreen(
                             errorMessage = msg
                         },
                         scope = authScope,
-                        onAuthCancelled = {
+                        onAuthCancelled = { diagnostic ->
                             isLoading = false
+                            if (!diagnostic.isNullOrBlank()) {
+                                errorMessage = diagnostic
+                            }
                         }
                     )
                 },
@@ -419,8 +438,51 @@ fun AuthScreen(
                 }
             }
 
+            OutlinedButton(
+                onClick = {
+                    isLoading = true
+                    errorMessage = null
+                    onBeforeInteractiveSignIn()
+                    onGoogleWebOAuthSignInClicked(
+                        context = context,
+                        auth = auth,
+                        includeWorkspaceScopes = false,
+                        onAuthSuccess = { signedUser, token ->
+                            isLoading = false
+                            WorkspaceSessionStore.setAccessToken(token)
+                            onAuthSuccess(signedUser)
+                        },
+                        onAuthError = { msg ->
+                            isLoading = false
+                            errorMessage = msg
+                        },
+                        scope = authScope
+                    )
+                },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .testTag("google_browser_oauth_button"),
+                shape = MaterialTheme.shapes.medium,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.65f))
+            ) {
+                Icon(
+                    imageVector = Icons.Sharp.Language,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = "Masuk via Browser Google (Alternatif)",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
             Text(
-                text = "Sesi riset, skill kustom, dan arsip dokumen tersinkronisasi aman ke akun Google Anda.",
+                text = "Sesi riset, Gmail & Google Workspace, skill kustom, dan arsip dokumen tersinkronisasi aman ke akun Google Anda.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

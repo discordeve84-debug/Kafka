@@ -46,6 +46,7 @@ import androidx.compose.material.icons.sharp.Bookmarks
 import androidx.compose.material.icons.sharp.Description
 import androidx.compose.material.icons.sharp.Forum
 import androidx.compose.material.icons.sharp.Hub
+import androidx.compose.material.icons.sharp.Mail
 import androidx.compose.material.icons.sharp.PlayArrow
 import androidx.compose.material.icons.sharp.Public
 import androidx.compose.material.icons.sharp.School
@@ -96,6 +97,8 @@ fun HomeScreen(
     onOpenStudio: () -> Unit,
     onOpenWorkspaceDashboard: () -> Unit,
     onOpenWorkspaceLibrary: () -> Unit,
+    workspaceConnected: Boolean = false,
+    onOpenGoogleWorkspace: (Int) -> Unit = {},
 ) {
     val sessionsState by viewModel.sessionsState.collectAsStateWithLifecycle()
     val skillsState by viewModel.skillsState.collectAsStateWithLifecycle()
@@ -438,6 +441,16 @@ fun HomeScreen(
                         onClick = { onOpenResearch(2) },
                         modifier = Modifier.fillMaxWidth(),
                         testTag = "home_card_verify"
+                    )
+
+                    HomeFeatureCard(
+                        title = if (workspaceConnected) "Google Workspace Hub (Terhubung)" else "Google Workspace Hub",
+                        subtitle = "Gmail, Drive, Docs, Sheets, Calendar & Contacts terintegrasi",
+                        icon = Icons.Sharp.Mail,
+                        accentColor = MaterialTheme.colorScheme.primary,
+                        onClick = { onOpenGoogleWorkspace(0) },
+                        modifier = Modifier.fillMaxWidth(),
+                        testTag = "home_card_google_workspace"
                     )
                 }
             }

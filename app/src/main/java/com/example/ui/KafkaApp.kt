@@ -48,6 +48,7 @@ import androidx.compose.material.icons.sharp.DarkMode
 import androidx.compose.material.icons.sharp.Description
 import androidx.compose.material.icons.sharp.Home
 import androidx.compose.material.icons.sharp.LightMode
+import androidx.compose.material.icons.sharp.Mail
 import androidx.compose.material.icons.sharp.Save
 import androidx.compose.material.icons.sharp.Share
 import androidx.compose.material.icons.sharp.TravelExplore
@@ -114,7 +115,9 @@ import coil.compose.AsyncImage
 import com.example.R
 import com.example.audio.AudioQueryRecorder
 import com.example.audio.KafkaVoiceSpeaker
+import com.example.core.WorkspaceSessionStore
 import com.example.core.attemptAutoSignIn
+import com.example.core.checkPendingGoogleOAuthResult
 import com.example.core.signOutUser
 import com.example.data.KafkaAiEngine
 import com.example.data.KafkaFirestoreRepository
@@ -123,6 +126,7 @@ import com.example.model.AgentMode
 import com.example.model.GeneratedArtifact
 import com.example.model.OutputFormat
 import com.example.model.UserProfile
+import com.example.network.GoogleWorkspaceClient
 import com.example.network.LiveResearchClient
 import com.example.research.ui.ResearchModuleDialog
 import com.google.firebase.Firebase
@@ -207,6 +211,12 @@ fun AppNavigation(
     }
 
     LaunchedEffect(activeAuth) {
+        val pending = checkPendingGoogleOAuthResult(activeAuth)
+        if (pending?.first != null) {
+            WorkspaceSessionStore.setAccessToken(pending.second)
+            currentUser = pending.first
+            return@LaunchedEffect
+        }
         if (activeAuth.currentUser == null) {
             autoSignInJob = attemptAutoSignIn(
                 context = context,
@@ -434,6 +444,18 @@ private fun AuthenticatedKafkaShell(
         }
     )
 
+    val workspaceViewModel: WorkspaceViewModel = viewModel(
+        key = "workspace_$uid",
+        factory = viewModelFactory {
+            initializer {
+                WorkspaceViewModel(
+                    workspaceClient = GoogleWorkspaceClient(),
+                    aiEngine = KafkaAiEngine()
+                )
+            }
+        }
+    )
+
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route ?: ROUTE_HOME
@@ -442,9 +464,15 @@ private fun AuthenticatedKafkaShell(
     val artifactsState by viewModel.artifactsState.collectAsStateWithLifecycle()
     val execution by viewModel.agentExecution.collectAsStateWithLifecycle()
     val imageStudioState by viewModel.imageStudioState.collectAsStateWithLifecycle()
+    val workspaceState by workspaceViewModel.state.collectAsStateWithLifecycle()
+    val messagesState by viewModel.messagesState.collectAsStateWithLifecycle()
 
     val userProfile = (profileState as? UiState.Success)?.data
     val artifacts = (artifactsState as? UiState.Success)?.data ?: emptyList()
+    val latestResearchSummary = remember(messagesState) {
+        val msgs = (messagesState as? UiState.Success)?.data.orEmpty()
+        msgs.lastOrNull { it.role == "AGENT" && it.content.isNotBlank() }?.content.orEmpty()
+    }
 
     LaunchedEffect(userProfile?.darkTheme) {
         userProfile?.let { onToggleTheme(it.darkTheme) }
@@ -455,11 +483,20 @@ private fun AuthenticatedKafkaShell(
     var showProfileSheet by remember { mutableStateOf(false) }
     var showImageStudioDialog by remember { mutableStateOf(false) }
     var showCyberGameDialog by remember { mutableStateOf(false) }
+    var showWorkspaceHub by remember { mutableStateOf(false) }
+    var workspaceInitialTab by rememberSaveable { mutableIntStateOf(0) }
+    var gmailPrefillSubject by remember { mutableStateOf("") }
+    var gmailPrefillBody by remember { mutableStateOf("") }
     var researchInitialTab by rememberSaveable { mutableIntStateOf(0) }
     var agentSubView by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(viewModel) {
         viewModel.toastEvents.collect { msg ->
+            scope.launch { snackbarHostState.showSnackbar(msg) }
+        }
+    }
+    LaunchedEffect(workspaceViewModel) {
+        workspaceViewModel.toastEvents.collect { msg ->
             scope.launch { snackbarHostState.showSnackbar(msg) }
         }
     }
@@ -537,6 +574,27 @@ private fun AuthenticatedKafkaShell(
                             }
                         },
                         actions = {
+                            IconButton(
+                                onClick = {
+                                    workspaceInitialTab = 0
+                                    gmailPrefillSubject = ""
+                                    gmailPrefillBody = ""
+                                    showWorkspaceHub = true
+                                },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .testTag("workspace_hub_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Sharp.Mail,
+                                    contentDescription = "Google Workspace Hub",
+                                    tint = if (workspaceState.isConnected) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                )
+                            }
                             IconButton(
                                 onClick = { showProfileSheet = true },
                                 modifier = Modifier
@@ -692,6 +750,13 @@ private fun AuthenticatedKafkaShell(
                             onOpenWorkspaceLibrary = {
                                 agentSubView = 2
                                 navigateToTab(ROUTE_AGENT)
+                            },
+                            workspaceConnected = workspaceState.isConnected,
+                            onOpenGoogleWorkspace = { tab ->
+                                workspaceInitialTab = tab
+                                gmailPrefillSubject = ""
+                                gmailPrefillBody = ""
+                                showWorkspaceHub = true
                             }
                         )
                     }
@@ -751,6 +816,24 @@ private fun AuthenticatedKafkaShell(
                                 viewModel.selectSession(sessionId)
                                 agentSubView = 0
                                 navigateToTab(ROUTE_AGENT)
+                            },
+                            onUploadToDrive = { artifact ->
+                                if (workspaceState.isConnected) {
+                                    workspaceViewModel.uploadArtifactToDrive(artifact)
+                                } else {
+                                    workspaceInitialTab = 1
+                                    showWorkspaceHub = true
+                                }
+                            },
+                            onSendViaGmail = { artifact ->
+                                workspaceInitialTab = 0
+                                gmailPrefillSubject = "Dokumen Kafka: ${artifact.title}"
+                                gmailPrefillBody = buildString {
+                                    appendLine("Berikut ringkasan dokumen '${artifact.title}' (${artifact.format}):")
+                                    appendLine()
+                                    appendLine(artifact.summary.ifBlank { "Disusun oleh Kafka AI Research Agent." })
+                                }
+                                showWorkspaceHub = true
                             }
                         )
                     }
@@ -802,6 +885,18 @@ private fun AuthenticatedKafkaShell(
     if (showCyberGameDialog) {
         KafkaCyberGameDialog(
             onDismiss = { showCyberGameDialog = false }
+        )
+    }
+
+    if (showWorkspaceHub) {
+        GoogleWorkspaceHubDialog(
+            workspaceViewModel = workspaceViewModel,
+            artifacts = artifacts,
+            latestResearchSummary = latestResearchSummary,
+            initialTab = workspaceInitialTab,
+            prefillSendSubject = gmailPrefillSubject,
+            prefillSendBody = gmailPrefillBody,
+            onDismiss = { showWorkspaceHub = false }
         )
     }
 }

@@ -746,4 +746,22 @@ class KafkaAiEngine {
         }
         return list.take(10)
     }
+
+    suspend fun summarizeQuickText(prompt: String): String {
+        return try {
+            withTimeout(30_000L) {
+                val response = fastChatModel.generateContent(prompt)
+                response.text?.trim()?.takeIf { it.isNotBlank() }
+                    ?: "Ringkasan tidak tersedia untuk teks ini."
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: TimeoutCancellationException) {
+            Log.w(TAG, "Quick summary timed out", e)
+            "Ringkasan melebihi batas waktu. Silakan coba lagi."
+        } catch (e: Exception) {
+            Log.e(TAG, "Quick summary failed", e)
+            throw e
+        }
+    }
 }

@@ -22,9 +22,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.OpenInNew
 import androidx.compose.material.icons.sharp.AutoAwesome
+import androidx.compose.material.icons.sharp.CloudUpload
 import androidx.compose.material.icons.sharp.DeleteOutline
 import androidx.compose.material.icons.sharp.Description
 import androidx.compose.material.icons.sharp.Forum
+import androidx.compose.material.icons.sharp.Mail
 import androidx.compose.material.icons.sharp.PictureAsPdf
 import androidx.compose.material.icons.sharp.Share
 import androidx.compose.material.icons.sharp.Slideshow
@@ -63,6 +65,8 @@ import com.example.ui.theme.KafkaVerifiedGreen
 fun DocStudioScreen(
     viewModel: KafkaViewModel,
     onOpenSession: (String) -> Unit = {},
+    onUploadToDrive: (GeneratedArtifact) -> Unit = {},
+    onSendViaGmail: (GeneratedArtifact) -> Unit = {},
 ) {
     val docState by viewModel.docStudioState.collectAsStateWithLifecycle()
     val artifactsState by viewModel.artifactsState.collectAsStateWithLifecycle()
@@ -267,6 +271,8 @@ fun DocStudioScreen(
                     artifact = art,
                     onOpen = { viewModel.openArtifact(art) },
                     onShare = { viewModel.shareArtifact(art) },
+                    onUploadDrive = { onUploadToDrive(art) },
+                    onSendGmail = { onSendViaGmail(art) },
                     onOpenSession = if (art.sessionId.isNotBlank()) {
                         { onOpenSession(art.sessionId) }
                     } else null,
@@ -282,6 +288,8 @@ private fun ArtifactCard(
     artifact: GeneratedArtifact,
     onOpen: () -> Unit,
     onShare: () -> Unit,
+    onUploadDrive: () -> Unit,
+    onSendGmail: () -> Unit,
     onOpenSession: (() -> Unit)?,
     onDelete: () -> Unit
 ) {
@@ -393,6 +401,20 @@ private fun ArtifactCard(
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
+                }
+                IconButton(onClick = onUploadDrive, modifier = Modifier.size(48.dp)) {
+                    Icon(
+                        imageVector = Icons.Sharp.CloudUpload,
+                        contentDescription = "Upload ke Google Drive",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+                IconButton(onClick = onSendGmail, modifier = Modifier.size(48.dp)) {
+                    Icon(
+                        imageVector = Icons.Sharp.Mail,
+                        contentDescription = "Kirim lewat Gmail",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                 }
                 IconButton(onClick = onDelete, modifier = Modifier.size(48.dp)) {
                     Icon(
