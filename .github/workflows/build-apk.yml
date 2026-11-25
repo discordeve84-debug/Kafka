@@ -136,9 +136,19 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
         run: |
           gradle --version
-          gradle :app:assembleDebug --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
+          BUILD_OK=false
+          for attempt in 1 2 3; do
+            if gradle :app:assembleDebug --no-daemon --no-configuration-cache --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace; then
+              BUILD_OK=true
+              break
+            fi
+            echo "Gradle debug build attempt $attempt failed; retrying in 12s..."
+            sleep 12
+          done
+          [ "$BUILD_OK" = "true" ] || exit 1
           mkdir -p dist-apk
           SRC_APK=$(find app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' | head -n 1)
+          [ -n "$SRC_APK" ] || { echo "Debug APK not produced."; exit 1; }
           cp "$SRC_APK" "dist-apk/kafka-v1.2-debug-b${{ github.run_number }}.apk"
           ls -lh dist-apk
 
@@ -179,9 +189,19 @@ jobs:
             export KEY_PASSWORD="android"
           fi
           gradle --version
-          gradle :app:assembleRelease --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
+          BUILD_OK=false
+          for attempt in 1 2 3; do
+            if gradle :app:assembleRelease --no-daemon --no-configuration-cache --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace; then
+              BUILD_OK=true
+              break
+            fi
+            echo "Gradle release build attempt $attempt failed; retrying in 12s..."
+            sleep 12
+          done
+          [ "$BUILD_OK" = "true" ] || exit 1
           mkdir -p dist-apk
           SRC_APK=$(find app/build/outputs/apk/release -maxdepth 1 -name '*.apk' | head -n 1)
+          [ -n "$SRC_APK" ] || { echo "Release APK not produced."; exit 1; }
           cp "$SRC_APK" "dist-apk/kafka-v1.2-release-b${{ github.run_number }}.apk"
           ls -lh dist-apk
 
