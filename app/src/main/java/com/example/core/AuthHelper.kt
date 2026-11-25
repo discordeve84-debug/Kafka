@@ -230,7 +230,7 @@ fun onGoogleSignInClicked(
             Log.w(TAG, "Google Sign-In cancelled or dismissed: ${e.message}", e)
             val currentSha1 = getApkSha1Fingerprint(context)
             val diagnostic = if (currentSha1 != null && !currentSha1.equals(EXPECTED_DEBUG_SHA1, ignoreCase = true)) {
-                "Login Play Services dibatalkan karena SHA-1 APK ($currentSha1) berbeda dari Firebase ($EXPECTED_DEBUG_SHA1). Gunakan tombol 'Masuk via Browser Google' di bawah untuk masuk langsung."
+                "Login Play Services dibatalkan karena SHA-1 APK ($currentSha1) berbeda dari Firebase ($EXPECTED_DEBUG_SHA1). Tambahkan secret DEBUG_KEYSTORE_BASE64 di GitHub repo (isi dari file debug.keystore.base64) atau ekspor APK langsung dari AI Studio."
             } else {
                 "Dialog Google dibatalkan setelah pemilihan akun (${e.message ?: "cancelled"}). Gunakan tombol 'Masuk via Browser Google' di bawah agar langsung masuk."
             }
@@ -326,7 +326,7 @@ fun onGoogleWebOAuthSignInClicked(
             val raw = e.localizedMessage.orEmpty()
             val message = if (raw.contains("package certificate hash", ignoreCase = true)) {
                 val currentSha1 = getApkSha1Fingerprint(context)
-                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). Build ulang APK dari workflow terbaru (dengan debug.keystore.base64) lalu hapus aplikasi lama sebelum menginstal APK baru."
+                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). AI Studio tidak menyertakan file keystore saat push ke GitHub — simpan isi debug.keystore.base64 sebagai secret DEBUG_KEYSTORE_BASE64 di GitHub, lalu build ulang."
             } else {
                 raw.takeIf { it.isNotBlank() }
                     ?: "Gagal masuk via Browser Google (${e::class.simpleName})."
@@ -404,7 +404,7 @@ fun authorizeGoogleWorkspaceScopes(
             val raw = e.localizedMessage.orEmpty()
             val message = if (raw.contains("package certificate hash", ignoreCase = true)) {
                 val currentSha1 = getApkSha1Fingerprint(context)
-                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). Gunakan APK dari build workflow terbaru setelah menghapus versi lama."
+                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). Tambahkan secret DEBUG_KEYSTORE_BASE64 di GitHub lalu build ulang."
             } else {
                 raw.takeIf { it.isNotBlank() }
                     ?: "Gagal menghubungkan Google Workspace (${e::class.simpleName})."
