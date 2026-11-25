@@ -90,12 +90,14 @@ jobs:
           gradle-version: "9.3.1"
 
       - name: Prepare debug keystore & env
+        id: keystore
         env:
           DEBUG_KEYSTORE_BASE64: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
           GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
         shell: bash
         run: |
+          GENERATED=false
           if [ -n "$DEBUG_KEYSTORE_BASE64" ]; then
             echo "Decoding GitHub Secret DEBUG_KEYSTORE_BASE64 -> debug.keystore"
             printf '%s' "$DEBUG_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > debug.keystore
@@ -103,7 +105,7 @@ jobs:
             echo "Decoding repo debug.keystore.base64 -> debug.keystore"
             tr -d '[:space:]' < debug.keystore.base64 | base64 -d > debug.keystore
           elif [ ! -f debug.keystore ]; then
-            echo "::warning::DEBUG_KEYSTORE_BASE64 secret and debug.keystore.base64 file are missing. Generating a temporary keystore; Google Sign-In/Firebase OAuth will reject this APK until DEBUG_KEYSTORE_BASE64 is configured in GitHub Secrets."
+            echo "::warning::Keystore tetap tidak ditemukan. Membuat keystore SEMENTARA - SHA-1 akan BERBEDA di setiap build dan login Google akan ditolak Firebase."
             keytool -genkeypair -v \
               -keystore debug.keystore \
               -storepass android \
@@ -113,8 +115,30 @@ jobs:
               -keysize 2048 \
               -validity 10000 \
               -dname "CN=Android Debug,O=Android,C=US"
+            GENERATED=true
           fi
-          keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android | grep -E "SHA1:|SHA256:" || true
+          echo "generated=$GENERATED" >> "$GITHUB_OUTPUT"
+
+          FP=$(keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android | grep -E "SHA1:|SHA256:" || true)
+          echo "$FP"
+          {
+            echo "## Sidik jari keystore yang dipakai build ini"
+            echo '```'
+            echo "$FP"
+            echo '```'
+            echo "Daftarkan SHA1 dan SHA256 di Firebase Console -> Project settings -> aplikasi com.aistudio.kafka.xqmzkt."
+            if [ "$GENERATED" = "true" ]; then
+              echo ""
+              echo "**PERINGATAN:** keystore ini dibuat otomatis dan tidak tetap. Unduh artifact \`keystore-baru\`, "
+              echo "salin isi debug.keystore.base64 ke GitHub Secret \`DEBUG_KEYSTORE_BASE64\`, lalu daftarkan SHA-1 di atas ke Firebase."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$GENERATED" = "true" ]; then
+            mkdir -p keystore-out
+            base64 -w0 debug.keystore > keystore-out/debug.keystore.base64
+          fi
+
           GS_SECRET="${GOOGLE_SERVICES_JSON:-$GOOGLE_SERVICES_JSON_BASE64}"
           if [ ! -f app/google-services.json ] && [ -n "$GS_SECRET" ]; then
             TRIMMED_GS="$(printf '%s' "$GS_SECRET" | sed -e 's/^[[:space:]]*//')"
@@ -131,6 +155,15 @@ jobs:
           else
             echo "Note: app/google-services.json not found in repo; Gradle will continue via MissingGoogleServicesStrategy.WARN"
           fi
+
+      - name: Upload keystore baru (hanya jika dibuat otomatis)
+        if: ${{ steps.keystore.outputs.generated == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: keystore-baru
+          path: keystore-out/debug.keystore.base64
+          retention-days: 3
+          if-no-files-found: error
 
       - name: Build Debug APK
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}

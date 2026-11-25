@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.ArrowForward
@@ -349,12 +350,14 @@ fun AuthScreen(
                     shape = RoundedCornerShape(14.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.65f))
                 ) {
-                    Text(
-                        text = errorMessage.orEmpty(),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(14.dp)
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = errorMessage.orEmpty(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.padding(14.dp)
+                        )
+                    }
                 }
             }
 

@@ -42,7 +42,16 @@ import kotlinx.coroutines.withContext
 import java.security.MessageDigest
 
 private const val TAG = "Auth"
-private const val EXPECTED_DEBUG_SHA1 = "29:E7:DC:9E:DD:6E:AF:FF:77:40:5F:69:BE:94:27:4B:83:2C:66:41"
+
+/**
+ * SHA-1 yang SUDAH terdaftar di Firebase Console
+ * (Project settings -> Your apps -> com.aistudio.kafka.xqmzkt -> SHA certificate fingerprints).
+ * Setiap kali mendaftarkan sidik jari baru di Firebase, tambahkan juga di sini
+ * supaya pesan diagnostik di layar login tetap akurat.
+ */
+private val REGISTERED_SHA1 = setOf(
+    "29:E7:DC:9E:DD:6E:AF:FF:77:40:5F:69:BE:94:27:4B:83:2C:66:41",
+)
 
 val GOOGLE_WORKSPACE_SCOPES = listOf(
     "https://www.googleapis.com/auth/gmail.readonly",
@@ -221,18 +230,17 @@ fun onGoogleSignInClicked(
                     Log.d(TAG, "Firebase Google Sign-In succeeded for uid=${signedUser.uid}")
                     onAuthSuccess(signedUser)
                 } else {
-                    onAuthError("Akun Google terpilih, tetapi sesi Firebase Auth tidak aktif. Coba gunakan tombol Masuk via Browser Google di bawah.")
+                    onAuthError("Akun Google terpilih, tetapi sesi Firebase Auth tidak aktif. Coba lagi atau periksa konfigurasi Firebase.")
                 }
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: GetCredentialCancellationException) {
             Log.w(TAG, "Google Sign-In cancelled or dismissed: ${e.message}", e)
-            val currentSha1 = getApkSha1Fingerprint(context)
-            val diagnostic = if (currentSha1 != null && !currentSha1.equals(EXPECTED_DEBUG_SHA1, ignoreCase = true)) {
-                "Login Play Services dibatalkan karena SHA-1 APK ($currentSha1) berbeda dari Firebase ($EXPECTED_DEBUG_SHA1). Tambahkan secret DEBUG_KEYSTORE_BASE64 di GitHub repo (isi dari file debug.keystore.base64) atau ekspor APK langsung dari AI Studio."
+            val diagnostic = if (isApkSha1Unregistered(context)) {
+                signatureMismatchMessage(context)
             } else {
-                "Dialog Google dibatalkan setelah pemilihan akun (${e.message ?: "cancelled"}). Gunakan tombol 'Masuk via Browser Google' di bawah agar langsung masuk."
+                "Dialog Google dibatalkan (${e.message ?: "cancelled"}). Jika Anda tidak membatalkannya sendiri, coba lagi atau gunakan tombol 'Masuk via Browser Google'."
             }
             withContext(Dispatchers.Main.immediate) {
                 onAuthCancelled(diagnostic)
@@ -258,8 +266,9 @@ fun onGoogleSignInClicked(
             Log.e(TAG, "Google Sign-In failed", e)
             val raw = e.localizedMessage.orEmpty()
             val hint = when {
-                raw.contains("10:") || raw.contains("DEVELOPER_ERROR", ignoreCase = true) ->
-                    "SHA-1 APK tidak cocok dengan Firebase (DEVELOPER_ERROR). Gunakan tombol 'Masuk via Browser Google' di bawah."
+                raw.contains("10:") || raw.contains("DEVELOPER_ERROR", ignoreCase = true) ||
+                    raw.contains("28444") || raw.contains("12501") ->
+                    signatureMismatchMessage(context)
                 raw.contains("network", ignoreCase = true) ->
                     "Koneksi internet bermasalah saat menghubungi Firebase Auth. Periksa jaringan lalu coba lagi."
                 else -> raw.ifBlank { "Gagal masuk dengan Google (${e::class.simpleName}). Coba tombol 'Masuk via Browser Google' di bawah." }
@@ -273,8 +282,6 @@ fun onGoogleSignInClicked(
 
 /**
  * Fallback & Browser Google OAuth login via Firebase Auth Web OAuth handler.
- * Works across all APK signatures (including GitHub Actions Release/Debug builds)
- * and Android devices where Credential Manager / Play Services bottom sheet rejects SHA-1.
  */
 fun onGoogleWebOAuthSignInClicked(
     context: Context,
@@ -324,9 +331,8 @@ fun onGoogleWebOAuthSignInClicked(
         } catch (e: Exception) {
             Log.e(TAG, "Browser Google OAuth failed", e)
             val raw = e.localizedMessage.orEmpty()
-            val message = if (raw.contains("package certificate hash", ignoreCase = true)) {
-                val currentSha1 = getApkSha1Fingerprint(context)
-                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). AI Studio tidak menyertakan file keystore saat push ke GitHub — simpan isi debug.keystore.base64 sebagai secret DEBUG_KEYSTORE_BASE64 di GitHub, lalu build ulang."
+            val message = if (isCertificateRejection(raw)) {
+                signatureMismatchMessage(context)
             } else {
                 raw.takeIf { it.isNotBlank() }
                     ?: "Gagal masuk via Browser Google (${e::class.simpleName})."
@@ -402,9 +408,8 @@ fun authorizeGoogleWorkspaceScopes(
         } catch (e: Exception) {
             Log.e(TAG, "Workspace OAuth authorization failed", e)
             val raw = e.localizedMessage.orEmpty()
-            val message = if (raw.contains("package certificate hash", ignoreCase = true)) {
-                val currentSha1 = getApkSha1Fingerprint(context)
-                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). Tambahkan secret DEBUG_KEYSTORE_BASE64 di GitHub lalu build ulang."
+            val message = if (isCertificateRejection(raw)) {
+                signatureMismatchMessage(context)
             } else {
                 raw.takeIf { it.isNotBlank() }
                     ?: "Gagal menghubungkan Google Workspace (${e::class.simpleName})."
@@ -449,8 +454,41 @@ private fun resolveDefaultWebClientId(context: Context): String? {
     }
 }
 
+private fun isCertificateRejection(raw: String): Boolean =
+    raw.contains("package certificate hash", ignoreCase = true) ||
+        raw.contains("certificate hash", ignoreCase = true) ||
+        raw.contains("SHA-1", ignoreCase = true) ||
+        raw.contains("app is not authorized", ignoreCase = true) ||
+        raw.contains("DEVELOPER_ERROR", ignoreCase = true)
+
+/** true hanya jika SHA-1 APK terbaca DAN belum ada di REGISTERED_SHA1. */
+private fun isApkSha1Unregistered(context: Context): Boolean {
+    val sha1 = getApkSha1Fingerprint(context) ?: return false
+    return REGISTERED_SHA1.none { it.equals(sha1, ignoreCase = true) }
+}
+
+/**
+ * Pesan diagnostik yang konsisten untuk tombol "Masuk dengan Google" dan "Masuk via Browser Google",
+ * karena keduanya memvalidasi sertifikat APK yang sama pada Firebase.
+ */
+private fun signatureMismatchMessage(context: Context): String {
+    val sha1 = getApkSha1Fingerprint(context) ?: "tidak terbaca"
+    val sha256 = getApkSha256Fingerprint(context) ?: "tidak terbaca"
+    return "Login Google ditolak karena tanda tangan APK ini belum terdaftar di Firebase " +
+        "(kedua tombol login ikut terdampak, jadi tombol browser bukan solusi).\n\n" +
+        "SHA-1: $sha1\n" +
+        "SHA-256: $sha256\n\n" +
+        "Perbaikan: daftarkan kedua sidik jari di atas di Firebase Console -> Project settings -> " +
+        "aplikasi com.aistudio.kafka.xqmzkt, atau build memakai keystore tetap " +
+        "(secret DEBUG_KEYSTORE_BASE64 di GitHub) lalu pasang ulang APK."
+}
+
+fun getApkSha1Fingerprint(context: Context): String? = getApkFingerprint(context, "SHA-1")
+
+fun getApkSha256Fingerprint(context: Context): String? = getApkFingerprint(context, "SHA-256")
+
 @Suppress("DEPRECATION")
-fun getApkSha1Fingerprint(context: Context): String? {
+private fun getApkFingerprint(context: Context, algorithm: String): String? {
     return try {
         val packageManager = context.packageManager
         val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -466,10 +504,10 @@ fun getApkSha1Fingerprint(context: Context): String? {
             ).signatures
         }
         val certBytes = signatures?.firstOrNull()?.toByteArray() ?: return null
-        val digest = MessageDigest.getInstance("SHA-1").digest(certBytes)
+        val digest = MessageDigest.getInstance(algorithm).digest(certBytes)
         digest.joinToString(":") { byte -> "%02X".format(byte) }
     } catch (e: Exception) {
-        Log.w(TAG, "Unable to inspect APK SHA-1: ${e.message}")
+        Log.w(TAG, "Unable to inspect APK $algorithm: ${e.message}")
         null
     }
 }
