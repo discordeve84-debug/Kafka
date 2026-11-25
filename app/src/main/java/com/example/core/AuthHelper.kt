@@ -323,11 +323,16 @@ fun onGoogleWebOAuthSignInClicked(
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Browser Google OAuth failed", e)
+            val raw = e.localizedMessage.orEmpty()
+            val message = if (raw.contains("package certificate hash", ignoreCase = true)) {
+                val currentSha1 = getApkSha1Fingerprint(context)
+                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). Build ulang APK dari workflow terbaru (dengan debug.keystore.base64) lalu hapus aplikasi lama sebelum menginstal APK baru."
+            } else {
+                raw.takeIf { it.isNotBlank() }
+                    ?: "Gagal masuk via Browser Google (${e::class.simpleName})."
+            }
             withContext(Dispatchers.Main.immediate) {
-                onAuthError(
-                    e.localizedMessage?.takeIf { it.isNotBlank() }
-                        ?: "Gagal masuk via Browser Google (${e::class.simpleName})."
-                )
+                onAuthError(message)
             }
         }
     }
@@ -396,11 +401,16 @@ fun authorizeGoogleWorkspaceScopes(
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Workspace OAuth authorization failed", e)
+            val raw = e.localizedMessage.orEmpty()
+            val message = if (raw.contains("package certificate hash", ignoreCase = true)) {
+                val currentSha1 = getApkSha1Fingerprint(context)
+                "Sertifikat APK (${currentSha1 ?: "tidak terbaca"}) belum cocok dengan Firebase ($EXPECTED_DEBUG_SHA1). Gunakan APK dari build workflow terbaru setelah menghapus versi lama."
+            } else {
+                raw.takeIf { it.isNotBlank() }
+                    ?: "Gagal menghubungkan Google Workspace (${e::class.simpleName})."
+            }
             withContext(Dispatchers.Main.immediate) {
-                onError(
-                    e.localizedMessage?.takeIf { it.isNotBlank() }
-                        ?: "Gagal menghubungkan Google Workspace (${e::class.simpleName})."
-                )
+                onError(message)
             }
         }
     }

@@ -157,20 +157,18 @@ fun AuthScreen(
                     )
             )
 
-            // Crisp HD seductive portrait on the right, never overlapped by hero text
+            // Crisp HD seductive leaning pose from reference sheet, positioned on the right
             Image(
                 painter = painterResource(id = heroDrawableRes),
                 contentDescription = stringResource(R.string.cd_anime_mascot),
                 contentScale = ContentScale.Crop,
-                alignment = Alignment.TopCenter,
+                alignment = Alignment.CenterEnd,
                 modifier = Modifier
-                    .fillMaxWidth(0.76f)
-                    .fillMaxHeight()
-                    .align(Alignment.BottomEnd)
+                    .fillMaxSize()
                     .graphicsLayer {
                         scaleX = allureScale
                         scaleY = allureScale
-                        rotationZ = allureSway * 0.40f
+                        rotationZ = allureSway * 0.30f
                     }
             )
 
@@ -180,10 +178,10 @@ fun AuthScreen(
                     .fillMaxSize()
                     .background(
                         Brush.horizontalGradient(
-                            0.0f to MaterialTheme.colorScheme.background,
-                            0.28f to MaterialTheme.colorScheme.background.copy(alpha = 0.90f),
-                            0.48f to MaterialTheme.colorScheme.background.copy(alpha = 0.26f),
-                            0.70f to Color.Transparent,
+                            0.0f to MaterialTheme.colorScheme.background.copy(alpha = 0.96f),
+                            0.26f to MaterialTheme.colorScheme.background.copy(alpha = 0.78f),
+                            0.44f to MaterialTheme.colorScheme.background.copy(alpha = 0.16f),
+                            0.62f to Color.Transparent,
                             1.0f to Color.Transparent
                         )
                     )

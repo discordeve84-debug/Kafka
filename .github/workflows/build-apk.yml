@@ -95,21 +95,21 @@ jobs:
           GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
         shell: bash
         run: |
-          if [ ! -f debug.keystore ]; then
-            if [ -f debug.keystore.base64 ]; then
-              tr -d '[:space:]' < debug.keystore.base64 | base64 -d > debug.keystore
-            else
-              keytool -genkeypair -v \
-                -keystore debug.keystore \
-                -storepass android \
-                -alias androiddebugkey \
-                -keypass android \
-                -keyalg RSA \
-                -keysize 2048 \
-                -validity 10000 \
-                -dname "CN=Android Debug,O=Android,C=US"
-            fi
+          if [ -f debug.keystore.base64 ]; then
+            echo "Decoding authoritative debug.keystore.base64 -> debug.keystore"
+            tr -d '[:space:]' < debug.keystore.base64 | base64 -d > debug.keystore
+          elif [ ! -f debug.keystore ]; then
+            keytool -genkeypair -v \
+              -keystore debug.keystore \
+              -storepass android \
+              -alias androiddebugkey \
+              -keypass android \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
           fi
+          keytool -list -v -keystore debug.keystore -alias androiddebugkey -storepass android -keypass android | grep -E "SHA1:|SHA256:" || true
           GS_SECRET="${GOOGLE_SERVICES_JSON:-$GOOGLE_SERVICES_JSON_BASE64}"
           if [ ! -f app/google-services.json ] && [ -n "$GS_SECRET" ]; then
             TRIMMED_GS="$(printf '%s' "$GS_SECRET" | sed -e 's/^[[:space:]]*//')"
@@ -132,6 +132,10 @@ jobs:
         run: |
           gradle --version
           gradle :app:assembleDebug --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
+          mkdir -p dist-apk
+          SRC_APK=$(find app/build/outputs/apk/debug -maxdepth 1 -name '*.apk' | head -n 1)
+          cp "$SRC_APK" "dist-apk/kafka-v1.2-debug-b${{ github.run_number }}.apk"
+          ls -lh dist-apk
 
       - name: Build Release APK
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
@@ -145,8 +149,17 @@ jobs:
             echo "Using release signing keystore from GitHub Secrets."
             echo "$RELEASE_KEYSTORE_BASE64" | tr -d '[:space:]' | base64 -d > my-upload-key.jks
             export KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks"
+          elif [ -f debug.keystore ]; then
+            echo "Converting debug.keystore to release upload keystore so SHA-1 stays synced with Firebase."
+            rm -f my-upload-key.jks
+            keytool -importkeystore -noprompt \
+              -srckeystore debug.keystore -srcstorepass android -srcalias androiddebugkey -srckeypass android \
+              -destkeystore my-upload-key.jks -deststorepass android -destalias upload -destkeypass android
+            export KEYSTORE_PATH="$GITHUB_WORKSPACE/my-upload-key.jks"
+            export STORE_PASSWORD="android"
+            export KEY_PASSWORD="android"
           else
-            echo "Release secrets not configured; generating temporary upload keystore for installable Release APK."
+            echo "Release secrets and debug.keystore missing; generating temporary upload keystore."
             keytool -genkeypair -v \
               -keystore my-upload-key.jks \
               -storepass android \
@@ -162,13 +175,17 @@ jobs:
           fi
           gradle --version
           gradle :app:assembleRelease --no-daemon --max-workers=2 -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" --stacktrace
+          mkdir -p dist-apk
+          SRC_APK=$(find app/build/outputs/apk/release -maxdepth 1 -name '*.apk' | head -n 1)
+          cp "$SRC_APK" "dist-apk/kafka-v1.2-release-b${{ github.run_number }}.apk"
+          ls -lh dist-apk
 
       - name: Upload Debug APK Artifact
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.build_type == 'debug' }}
         uses: actions/upload-artifact@v4
         with:
-          name: kafka-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: kafka-v1.2-debug-b${{ github.run_number }}
+          path: dist-apk/kafka-v1.2-debug-*.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -176,8 +193,8 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_type == 'release' }}
         uses: actions/upload-artifact@v4
         with:
-          name: kafka-release-apk
-          path: app/build/outputs/apk/release/*.apk
+          name: kafka-v1.2-release-b${{ github.run_number }}
+          path: dist-apk/kafka-v1.2-release-*.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -187,7 +204,7 @@ jobs:
         with:
           tag_name: v1.2.${{ github.run_number }}
           name: Kafka Debug APK v1.2.${{ github.run_number }}
-          files: app/build/outputs/apk/debug/*.apk
+          files: dist-apk/kafka-v1.2-debug-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -197,6 +214,6 @@ jobs:
         with:
           tag_name: v1.2.${{ github.run_number }}
           name: Kafka Release APK v1.2.${{ github.run_number }}
-          files: app/build/outputs/apk/release/*.apk
+          files: dist-apk/kafka-v1.2-release-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
